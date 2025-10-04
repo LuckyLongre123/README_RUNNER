@@ -1,16 +1,16 @@
-# 🔄 Reverse Integer - Complete Beginner's Guide
+# 🔍 Sqrt(x) - Complete Beginner's Guide
 
-> **Master integer manipulation and overflow handling step by step!**
+> **Master binary search on answer space and overflow handling step by step!**
 
 ---
 
 ## 📖 What You'll Learn
 
 By the end of this guide, you'll master:
-- 🔢 **Integer Digit Manipulation** - How to extract and work with individual digits
-- ⚠️ **Overflow Detection** - Preventing numbers from getting too big
-- 🎯 **Boundary Handling** - Understanding number limits
-- 🧮 **Mathematical Operations** - Using modulo and division like a pro
+- 🎯 **Binary Search on Answer Space** - Searching for solutions in value ranges, not arrays
+- 🛡️ **Overflow Prevention** - Safely handling large number multiplications
+- 📐 **Mathematical Optimization** - Reducing O(√x) to O(log x) complexity
+- 🧮 **Square Root Concepts** - Understanding integer square root computation
 
 ---
 
@@ -18,187 +18,229 @@ By the end of this guide, you'll master:
 
 ### 📋 Problem Statement
 
-**Given**: A signed 32-bit integer `x`  
-**Task**: Return `x` with its digits reversed  
-**Catch**: If the reversed number is too big/small, return `0`
+**Given**: A non-negative integer `x`  
+**Task**: Return the integer square root of `x` rounded down to the nearest integer  
+**Catch**: You cannot use any built-in exponent functions or operators!
 
-**Important Rule**: You can't use 64-bit integers (no cheating with bigger numbers!)
+**Important Rule**: For non-perfect squares, return the floor of the square root
 
 ### 🌟 Real-World Example
 
-Think of it like reading a number backwards:
-- **123** becomes **321** (like reading "one-two-three" as "three-two-one")
-- **-456** becomes **-654** (negative sign stays at the front)
-- **1200** becomes **21** (leading zeros disappear)
+Think of it like finding perfect fits:
+- **x = 4** → sqrt is **2** (perfect square: 2 × 2 = 4)
+- **x = 8** → sqrt is **2** (not perfect: 2² = 4 < 8 < 9 = 3²)
+- **x = 0** → sqrt is **0** (special case)
 
 ---
 
 ## 🔍 Understanding the Basics
 
-### 🏗️ What Are 32-bit Integers?
-
-```mermaid
-graph LR
-    A[32-bit Integer] --> B[INT_MIN<br/>-2,147,483,648]
-    A --> C[INT_MAX<br/>+2,147,483,647]
-    
-    style A fill:#e1f5fe
-    style B fill:#ffebee
-    style C fill:#e8f5e8
-```
-
-**Think of it like a container:**
-- It can only hold numbers from `-2,147,483,648` to `+2,147,483,647`
-- If you try to put a bigger number, it "overflows" (breaks)
-
-### 🎲 Digit Extraction Magic
-
-Here's how we extract digits from a number:
+### 🏗️ What is a Square Root?
 
 ```mermaid
 flowchart TD
-    A[Number: 1234] --> B[1234 % 10 = 4<br/>Extract last digit]
-    B --> C[1234 ÷ 10 = 123<br/>Remove last digit]
-    C --> D[123 % 10 = 3<br/>Extract next digit]
-    D --> E[123 ÷ 10 = 12<br/>Remove digit]
-    E --> F[Continue until 0]
+    A[Square Root of x] --> B{Is x a perfect square?}
+    B -->|Yes| C[Return exact root<br/>Example: sqrt4 = 2]
+    B -->|No| D[Return floor value<br/>Example: sqrt8 = 2]
     
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
+    style A fill:#e1f5fe
+    style C fill:#e8f5e8
     style D fill:#fff3e0
 ```
 
+**Think of it like this:**
+- Square root asks: "What number times itself gives me x?"
+- If no perfect answer exists, we round down to the nearest integer
+
+### 🎲 Binary Search on Answer Space
+
+Here's the key insight: we're not searching in an array, we're searching for the answer itself!
+
+```mermaid
+flowchart TD
+    A[Search Space: 0 to x] --> B[Pick middle value]
+    B --> C[Square it: mid × mid]
+    C --> D{Compare with x}
+    D -->|mid² = x| E[Found exact answer!]
+    D -->|mid² < x| F[Answer might be larger<br/>Search right half]
+    D -->|mid² > x| G[Answer must be smaller<br/>Search left half]
+    
+    style A fill:#e3f2fd
+    style E fill:#c8e6c9
+    style F fill:#fff3e0
+    style G fill:#ffebee
+```
+
 **Key Operations:**
-- `number % 10` → Gets the last digit
-- `number ÷ 10` → Removes the last digit
+- `mid * mid` → Test if this is the square root
+- Compare `mid²` with `x` to decide where to search next
+- Store valid candidates as we search
 
 ---
 
 ## 📚 Step-by-Step Examples
 
-### 🟢 Example 1: Simple Positive Number
+### 🟢 Example 1: Perfect Square
 
-**Input:** `x = 123`  
-**Output:** `321`
+**Input:** `x = 16`  
+**Output:** `4`
 
 ```mermaid
-graph TD
-    A[Start: 123] --> B[Extract 3<br/>Result = 3]
-    B --> C[Extract 2<br/>Result = 32]
-    C --> D[Extract 1<br/>Result = 321]
-    D --> E[Final: 321 ✅]
+flowchart TD
+    A[Start: x=16, range=0-15] --> B[mid=7, 7²=49>16]
+    B --> C[Search left: 0-6]
+    C --> D[mid=3, 3²=9<16<br/>Store ans=3]
+    D --> E[Search right: 4-6]
+    E --> F[mid=5, 5²=25>16]
+    F --> G[Search left: 4-4]
+    G --> H[mid=4, 4²=16=x]
+    H --> I[Found! Return 4 ✅]
     
     style A fill:#e8f5e8
-    style E fill:#c8e6c9
+    style I fill:#c8e6c9
 ```
 
 **Step-by-step breakdown:**
-1. **Start:** `ans = 0, x = 123`
-2. **Step 1:** Get last digit: `123 % 10 = 3`
-   - Build result: `ans = 0 × 10 + 3 = 3`
-   - Remove digit: `x = 123 ÷ 10 = 12`
-3. **Step 2:** Get last digit: `12 % 10 = 2`
-   - Build result: `ans = 3 × 10 + 2 = 32`
-   - Remove digit: `x = 12 ÷ 10 = 1`
-4. **Step 3:** Get last digit: `1 % 10 = 1`
-   - Build result: `ans = 32 × 10 + 1 = 321`
-   - Remove digit: `x = 1 ÷ 10 = 0`
-5. **Done:** `x = 0`, return `321`
+1. **Start:** `s = 0, e = 15, ans = -1, x = 16`
+2. **Step 1:** mid = 7, 7² = 49 > 16
+   - Search left: `e = 6`
+3. **Step 2:** mid = 3, 3² = 9 < 16
+   - Store answer: `ans = 3`
+   - Search right: `s = 4`
+4. **Step 3:** mid = 5, 5² = 25 > 16
+   - Search left: `e = 4`
+5. **Step 4:** mid = 4, 4² = 16 = x
+   - Perfect match! Return `4`
 
-### 🔴 Example 2: Negative Number
+### 🟡 Example 2: Non-Perfect Square
 
-**Input:** `x = -123`  
-**Output:** `-321`
-
-```mermaid
-graph TD
-    A[Start: -123] --> B[Extract -3<br/>Result = -3]
-    B --> C[Extract -2<br/>Result = -32]
-    C --> D[Extract -1<br/>Result = -321]
-    D --> E[Final: -321 ✅]
-    
-    style A fill:#ffebee
-    style E fill:#ffcdd2
-```
-
-**Magic of Negative Numbers:**
-- In programming, `-123 % 10 = -3` (not `7`)
-- The negative sign is preserved automatically!
-
-### 🟡 Example 3: Trailing Zeros
-
-**Input:** `x = 1200`  
-**Output:** `21`
+**Input:** `x = 8`  
+**Output:** `2`
 
 ```mermaid
-graph TD
-    A[Start: 1200] --> B[Extract 0<br/>Result = 0]
-    B --> C[Extract 0<br/>Result = 0]
-    C --> D[Extract 2<br/>Result = 2]
-    D --> E[Extract 1<br/>Result = 21]
-    E --> F[Final: 21 ✅<br/>Leading zeros vanish!]
+flowchart TD
+    A[Start: x=8, range=0-7] --> B[mid=3, 3²=9>8]
+    B --> C[Search left: 0-2]
+    C --> D[mid=1, 1²=1<8<br/>Store ans=1]
+    D --> E[Search right: 2-2]
+    E --> F[mid=2, 2²=4<8<br/>Store ans=2]
+    F --> G[Search right: 3-2<br/>s>e, stop]
+    G --> H[Return ans=2 ✅]
     
     style A fill:#fff8e1
-    style F fill:#ffecb3
+    style H fill:#ffecb3
 ```
 
-### 🚨 Example 4: Overflow Case
+**Magic of Floor Value:**
+- 2² = 4 ≤ 8 ≤ 9 = 3²
+- Since 8 is between 4 and 9, we return the lower bound: 2
+- This is exactly what "floor" means!
 
-**Input:** `x = 1534236469`  
-**Expected Reverse:** `9646324351`  
-**Problem:** `9646324351 > 2,147,483,647` (too big!)  
+### 🔵 Example 3: Edge Cases
+
+**Input:** `x = 0`  
 **Output:** `0`
 
 ```mermaid
-graph TD
-    A[Start: 1534236469] --> B[Build: 964632435]
-    B --> C[Next would be: 9646324351]
-    C --> D{Check: > INT_MAX?}
-    D -->|YES| E[Return 0 ❌]
-    D -->|NO| F[Continue building]
+flowchart TD
+    A[x = 0] --> B{Check edge case}
+    B -->|Yes| C[Return 0 immediately ✅]
     
     style A fill:#e1f5fe
-    style E fill:#ffebee
+    style C fill:#c8e6c9
+```
+
+**Input:** `x = 1`  
+**Output:** `1`
+
+```mermaid
+flowchart TD
+    A[x = 1] --> B{Check edge case}
+    B -->|Yes| C[Return 1 immediately ✅]
+    
+    style A fill:#e1f5fe
+    style C fill:#c8e6c9
+```
+
+### 🚨 Example 4: Overflow Prevention
+
+**Input:** `x = 2147483647` (INT_MAX)  
+**Expected Output:** `46340`
+
+```mermaid
+flowchart TD
+    A[x = 2147483647] --> B[Try mid = 46341]
+    B --> C[Calculate: mid × mid]
+    C --> D{Use long long?}
+    D -->|No| E[Integer overflow! ❌<br/>Wrong answer]
+    D -->|Yes| F[Safe calculation ✅<br/>46341² = 2147488281]
+    F --> G[2147488281 > x<br/>Search left]
+    G --> H[Find answer: 46340]
+    
+    style A fill:#e1f5fe
+    style E fill:#ff5252
+    style F fill:#4caf50
 ```
 
 ---
 
 ## 🛠️ The Algorithm
 
-### 🎯 Main Strategy: Build Backwards
+### 🎯 Main Strategy: Binary Search
 
 ```mermaid
 flowchart TD
-    A[Initialize result = 0] --> B{Is x = 0?}
-    B -->|No| C[Check for overflow]
-    C --> D[Get last digit: x % 10]
-    D --> E[Build result: result × 10 + digit]
-    E --> F[Remove digit: x ÷ 10]
-    F --> B
-    B -->|Yes| G[Return result]
+    A[Initialize: s=0, e=x-1, ans=-1] --> B{Edge case: x=0 or x=1?}
+    B -->|Yes| C[Return x directly]
+    B -->|No| D{Is s <= e?}
+    D -->|No| E[Return ans]
+    D -->|Yes| F[Calculate mid = s + e-s/2]
+    F --> G[Calculate sqr = mid × mid<br/>Using long long!]
+    G --> H{Compare sqr with x}
+    H -->|sqr = x| I[Return mid]
+    H -->|sqr < x| J[Store ans = mid<br/>Search right: s = mid+1]
+    H -->|sqr > x| K[Search left: e = mid-1]
+    J --> D
+    K --> D
     
     style A fill:#e8f5e8
-    style C fill:#fff3e0
-    style G fill:#c8e6c9
+    style C fill:#c8e6c9
+    style E fill:#c8e6c9
+    style I fill:#c8e6c9
 ```
 
 ### 💻 The Code
 
 ```cpp
-int reverse(int x) {
-    int ans = 0;
+int mySqrt(int x) {
+    int s = 0;      // Start pointer
+    int e = x - 1;  // End pointer
+    int ans = -1;   // Variable to store the answer
     
-    while(x != 0) {
-        // 🚨 SAFETY CHECK: Will next operation overflow?
-        if(ans < INT_MIN/10 || ans > INT_MAX/10) {
-            return 0;  // Overflow detected!
+    // Handle edge cases
+    if(x == 0) return 0;
+    if(x == 1) return 1;
+    
+    while(s <= e) {
+        // Calculate mid point to avoid overflow
+        long long int mid = s + (e - s) / 2;
+        
+        // Calculate square using long long to prevent overflow
+        long long int sqr = mid * mid;
+        
+        // If perfect square found, return immediately
+        if(sqr == x) {
+            return mid;
         }
-        
-        // 🔧 BUILD: Add next digit to result
-        ans = ans * 10 + x % 10;
-        
-        // ✂️ REMOVE: Delete last digit from x
-        x = x / 10;
+        // If mid² < x, store and search right
+        else if(sqr < x) {
+            ans = mid;
+            s = mid + 1;
+        }
+        // If mid² > x, search left
+        else {
+            e = mid - 1;
+        }
     }
     
     return ans;
@@ -207,24 +249,26 @@ int reverse(int x) {
 
 ### 🛡️ Overflow Protection Explained
 
-**Why do we check `ans > INT_MAX/10`?**
+**Why do we use `long long`?**
 
 ```mermaid
-graph TD
-    A[ans = 214748365] --> B[INT_MAX/10 = 214748364]
-    B --> C{ans > INT_MAX/10?}
-    C -->|YES| D[Next: ans × 10 = 2147483650<br/>This exceeds INT_MAX!]
-    C -->|NO| E[Safe to continue]
+flowchart LR
+    A[mid = 46341] --> B[int: mid × mid overflows!]
+    A --> C[long long: 2147488281 ✅]
+    B --> D[Wrong result ❌]
+    C --> E[Correct comparison ✅]
     
-    style A fill:#ffebee
+    style B fill:#ffebee
+    style C fill:#e8f5e8
     style D fill:#ff5252
     style E fill:#4caf50
 ```
 
 **The Math:**
 - `INT_MAX = 2,147,483,647`
-- `INT_MAX ÷ 10 = 214,748,364`
-- If `ans > 214,748,364`, then `ans × 10` will definitely overflow!
+- `46340² = 2,147,395,600` (fits in 32-bit)
+- `46341² = 2,147,488,281` (exceeds INT_MAX!)
+- Solution: Use `long long` for square calculation
 
 ---
 
@@ -234,99 +278,111 @@ graph TD
 
 | Input | Output | Why |
 |-------|--------|-----|
-| `123` | `321` | Basic reversal |
-| `-123` | `-321` | Negative preserved |
-| `120` | `21` | Trailing zeros removed |
+| `16` | `4` | Perfect square |
+| `8` | `2` | Floor of 2.828... |
+| `2` | `1` | Floor of 1.414... |
 
 ### ⚠️ Edge Cases
 
 | Input | Output | Why |
 |-------|--------|-----|
-| `0` | `0` | Zero stays zero |
-| `7` | `7` | Single digit unchanged |
-| `1534236469` | `0` | Overflow detected |
-| `-2147483648` | `0` | Negative overflow |
+| `0` | `0` | Special case: sqrt(0) = 0 |
+| `1` | `1` | Special case: sqrt(1) = 1 |
+| `2147483647` | `46340` | INT_MAX - overflow handling |
 
 ### 🎯 Boundary Testing
 
 ```mermaid
-graph TD
-    A[Test Categories] --> B[Normal Numbers<br/>✅ Should work]
-    A --> C[Edge Cases<br/>⚠️ Special handling]
-    A --> D[Overflow Cases<br/>❌ Return 0]
+flowchart TD
+    A[Test Categories] --> B[Perfect Squares<br/>✅ Exact answers]
+    A --> C[Non-Perfect Squares<br/>⚠️ Floor values]
+    A --> D[Edge Cases<br/>🔍 Special handling]
     
-    B --> B1[Positive: 123 → 321]
-    B --> B2[Negative: -456 → -654]
-    B --> B3[Trailing zeros: 1200 → 21]
+    B --> B1[x=4 → 2]
+    B --> B2[x=16 → 4]
+    B --> B3[x=1000000 → 1000]
     
-    C --> C1[Zero: 0 → 0]
-    C --> C2[Single digit: 5 → 5]
+    C --> C1[x=2 → 1]
+    C --> C2[x=8 → 2]
+    C --> C3[x=2000000000 → 44721]
     
-    D --> D1[Too big: 1534236469 → 0]
-    D --> D2[INT_MAX: 2147483647 → 0]
+    D --> D1[x=0 → 0]
+    D --> D2[x=1 → 1]
+    D --> D3[x=INT_MAX → 46340]
     
     style B fill:#e8f5e8
     style C fill:#fff3e0
-    style D fill:#ffebee
+    style D fill:#e1f5fe
 ```
 
 ---
 
 ## 🎓 Key Concepts Mastery
 
-### 🔢 Digit Manipulation Techniques
+### 🔢 Binary Search on Answer Pattern
 
-**1. Extract Last Digit:**
+**1. Identify the Search Space:**
 ```cpp
-int lastDigit = number % 10;
-// Example: 1234 % 10 = 4
+// For sqrt(x), answer is in range [0, x]
+int s = 0;
+int e = x - 1;  // Can optimize to x/2 for x > 1
 ```
 
-**2. Remove Last Digit:**
+**2. Store Valid Candidates:**
 ```cpp
-number = number / 10;
-// Example: 1234 / 10 = 123
+int ans = -1;  // Track best answer so far
+if (condition_satisfied) {
+    ans = mid;  // Store this as potential answer
+}
 ```
 
-**3. Build Number from Digits:**
+**3. Decide Search Direction:**
 ```cpp
-result = result * 10 + digit;
-// Example: 32 * 10 + 1 = 321
+if (mid² < x) {
+    // Answer might be larger, search right
+    s = mid + 1;
+} else {
+    // Answer must be smaller, search left
+    e = mid - 1;
+}
 ```
 
-### ⚠️ Overflow Detection Patterns
+### ⚠️ Overflow Prevention Techniques
 
 ```mermaid
-graph LR
-    A[Before Operation] --> B[Check Bounds]
-    B --> C{Safe?}
-    C -->|Yes| D[Perform Operation]
-    C -->|No| E[Return Error/0]
+flowchart LR
+    A[Overflow Risk] --> B[Use long long<br/>for calculations]
+    A --> C[Calculate mid safely:<br/>s + e-s/2]
+    A --> D[Check bounds before<br/>operations]
     
-    style A fill:#e3f2fd
-    style B fill:#fff3e0
+    style A fill:#ffebee
+    style B fill:#e8f5e8
+    style C fill:#e8f5e8
     style D fill:#e8f5e8
-    style E fill:#ffebee
 ```
 
 **Pattern to Remember:**
 ```cpp
-// Always check BEFORE multiplying by 10
-if (result > INT_MAX/10 || result < INT_MIN/10) {
-    return 0;  // Prevent overflow
-}
-result = result * 10 + digit;  // Safe to proceed
+// ALWAYS use long long for potentially large calculations
+long long int mid = s + (e - s) / 2;  // Prevents overflow
+long long int sqr = mid * mid;         // Safe multiplication
+
+// Instead of:
+int mid = (s + e) / 2;  // Can overflow if s+e > INT_MAX!
+int sqr = mid * mid;     // Can overflow!
 ```
 
 ### 🎯 Problem-Solving Framework
 
 ```mermaid
 flowchart TD
-    A[Read Problem] --> B[Identify Constraints]
-    B --> C[Plan Algorithm]
-    C --> D[Handle Edge Cases]
-    D --> E[Implement Solution]
-    E --> F[Test Thoroughly]
+    A[Identify Problem Type] --> B[Binary Search on Answer?]
+    B -->|Yes| C[Define Search Space]
+    C --> D[Identify Answer Condition]
+    D --> E[Handle Edge Cases]
+    E --> F[Implement Binary Search]
+    F --> G[Prevent Overflow]
+    G --> H[Test Thoroughly]
     
     style A fill:#e1f5fe
     style B fill:#f3e5f5
@@ -334,6 +390,8 @@ flowchart TD
     style D fill:#fff3e0
     style E fill:#fce4ec
     style F fill:#e0f2f1
+    style G fill:#ffebee
+    style H fill:#c8e6c9
 ```
 
 ---
@@ -343,28 +401,32 @@ flowchart TD
 ### ⏰ Time Complexity: O(log x)
 
 **Why logarithmic?**
-- We process each digit once
-- Number of digits in `x` = ⌊log₁₀|x|⌋ + 1
-- For 32-bit integers: maximum 10 digits
+- Each iteration cuts the search space in half
+- For a number with d digits, d ≈ log₁₀(x)
+- Binary search takes log₂(x) iterations
 
 ```mermaid
-graph TD
-    A["Input Size"] --> B["1 digit: O(1)"]
-    A --> C["10 digits: O(1)"]
-    A --> D["1000 digits: O(1)"]
-    A --> E["Max 32-bit: 10 digits"]
+flowchart TD
+    A[Search Space Reduction] --> B[Iteration 1: x elements]
+    B --> C[Iteration 2: x/2 elements]
+    C --> D[Iteration 3: x/4 elements]
+    D --> E[Iteration 4: x/8 elements]
+    E --> F[...]
+    F --> G[Iteration log x: 1 element]
     
     style A fill:#e3f2fd
-    style B fill:#e8f5e8
-    style C fill:#e8f5e8
-    style D fill:#e8f5e8
-    style E fill:#fff3e0
+    style G fill:#c8e6c9
 ```
+
+**Example:**
+- x = 1,000,000 → Takes ~20 iterations
+- x = 1,000,000,000 → Takes ~30 iterations
+- Very efficient even for large numbers!
 
 ### 💾 Space Complexity: O(1)
 
 **Why constant space?**
-- Only use a few variables: `ans`, `x`
+- Only use a few variables: `s`, `e`, `ans`, `mid`, `sqr`
 - No arrays, lists, or recursive calls
 - Memory usage doesn't grow with input size
 
@@ -376,224 +438,256 @@ Once you master this, try these similar problems:
 
 | Problem | Difficulty | Key Concept |
 |---------|------------|-------------|
-| 🔢 Palindrome Number | Easy | Digit extraction |
-| 🧮 Plus One | Easy | Digit manipulation |
-| 💫 Power of Three | Easy | Mathematical properties |
-| 🔄 Add Digits | Easy | Digit processing |
+| 🔢 Valid Perfect Square | Easy | Binary search on answer |
+| 🧮 Guess Number Higher or Lower | Easy | Binary search application |
+| 💫 Find Peak Element | Medium | Modified binary search |
+| 🔄 Search in Rotated Sorted Array | Medium | Binary search variant |
 
 ---
 
 ## 💼 Interview Questions & Answers
 
-### ❓ Question 1: Why can't we use 64-bit integers?
+### ❓ Question 1: Why use binary search instead of linear search?
 
 **Answer:**  
-The problem wants to test if you can handle overflow properly. Using 64-bit integers would be "cheating" because:
-- You could store any reversed 32-bit number without overflow
-- Real-world systems often have strict memory limits
-- The interviewer wants to see if you understand boundary checking
+Binary search is much more efficient for large numbers:
+- Linear search: Check 1, 2, 3, ..., sqrt(x) → O(√x) time
+- Binary search: Cuts search space in half each time → O(log x) time
 
 **Simple Explanation:**  
-It's like being asked to carry water in a small cup (32-bit) instead of a bucket (64-bit). The challenge is handling the small cup carefully!
+For x = 1,000,000:
+- Linear: ~1,000 checks
+- Binary: ~20 checks
+
+It's like finding a name in a phone book - you don't start from the first page!
 
 ---
 
-### ❓ Question 2: What happens to negative numbers in modulo operation?
+### ❓ Question 2: Why do we need `long long` for overflow prevention?
 
 **Answer:**  
-In C++/Java, negative numbers keep their sign in modulo:
-- `-123 % 10 = -3` (not `7`)
-- `-456 % 10 = -6` (not `4`)
+When calculating `mid * mid`, the result can exceed INT_MAX even if the final answer fits.
 
-**Simple Explanation:**  
-Think of it like this: if you owe 123 rupees and take out the last digit, you still owe 3 rupees (it stays negative).
-
-**Code Example:**
+**Example:**
 ```cpp
-int x = -123;
-int digit = x % 10;  // digit = -3
-x = x / 10;          // x = -12 (not -13!)
-```
+int mid = 46341;
+int sqr = mid * mid;  // Overflow! Result wraps around to negative
 
----
-
-### ❓ Question 3: Why do we check `ans > INT_MAX/10` instead of `ans * 10 > INT_MAX`?
-
-**Answer:**  
-Because `ans * 10` might already overflow before we can compare it!
-
-**Simple Explanation:**
-```
-Wrong way:  if (ans * 10 > INT_MAX)  // ans*10 overflows first! 💥
-Right way:  if (ans > INT_MAX/10)    // Safe comparison ✅
-```
-
-It's like checking if your bag can hold more items BEFORE adding them, not AFTER the bag has already burst!
-
----
-
-### ❓ Question 4: How do you handle the last digit check?
-
-**Answer:**  
-We also need to check if the last digit will cause overflow:
-
-```cpp
-if (ans > INT_MAX/10 || (ans == INT_MAX/10 && digit > 7)) {
-    return 0;
-}
+long long sqr = (long long)mid * mid;  // Safe! 2,147,488,281
 ```
 
 **Simple Explanation:**  
-- `INT_MAX = 2,147,483,647`
-- `INT_MAX/10 = 214,748,364`
-- If `ans = 214,748,364` and next digit is `8` or `9`, we'll overflow!
-- So we check: is digit greater than `7` (last digit of INT_MAX)?
+It's like using a bigger container temporarily during cooking, even if the final dish fits in a small bowl.
+
+---
+
+### ❓ Question 3: Why is the end pointer `x - 1` instead of `x`?
+
+**Answer:**  
+For x > 1, the square root is always less than x itself.
+
+**Math Proof:**
+- sqrt(x) < x for all x > 1
+- sqrt(4) = 2 < 4
+- sqrt(100) = 10 < 100
+
+So we can safely use `e = x - 1` to reduce one iteration.
+
+**Simple Explanation:**  
+You don't need to check if 100 is the square root of 100, because 100² = 10,000 ≠ 100!
+
+---
+
+### ❓ Question 4: How does the algorithm handle non-perfect squares?
+
+**Answer:**  
+We store the last valid answer where `mid² < x`. If no perfect square exists, this is our floor value.
+
+**Example for x = 8:**
+```
+mid = 1: 1² = 1 < 8 → Store ans = 1
+mid = 2: 2² = 4 < 8 → Store ans = 2 (update)
+mid = 3: 3² = 9 > 8 → Don't update
+Final: ans = 2 (largest value where mid² ≤ 8)
+```
+
+**Simple Explanation:**  
+We keep track of the "best so far" answer as we search, so even if we don't find a perfect match, we have the closest valid answer.
 
 ---
 
 ### ❓ Question 5: What's the time complexity and why?
 
 **Answer:**  
-**Time: O(log₁₀ x)** - We process each digit once, and number of digits = log₁₀(x)
+**Time: O(log x)** - Binary search halves the search space each iteration
 
-**Simple Explanation:**  
+**Simple Explanation:**
 ```
-123 has 3 digits → 3 operations
-1234 has 4 digits → 4 operations
-12345 has 5 digits → 5 operations
-```
-For 32-bit integers, maximum is 10 digits, so it's actually O(1) in practice!
+Search space size:
+Start:      x
+After 1:    x/2
+After 2:    x/4
+After 3:    x/8
+...
+After k:    x/(2^k) = 1
 
-**Space: O(1)** - We only use 2 variables (`ans` and `x`)
+Solving: 2^k = x → k = log₂(x)
+```
+
+**Space: O(1)** - Only use 5 variables regardless of input size
 
 ---
 
-### ❓ Question 6: How would you solve this without using `%` and `/` operators?
+### ❓ Question 6: Can you optimize the search space further?
 
 **Answer:**  
-Convert to string and reverse it:
+Yes! For x ≥ 4, sqrt(x) ≤ x/2
+
+**Proof:**
+- sqrt(x) = x/2 → Squaring: x = x²/4 → 4 = x → Only true for x = 4
+- For x > 4: sqrt(x) < x/2
+
+**Optimized Code:**
+```cpp
+int e = (x >= 4) ? x / 2 : x;  // More efficient search space
+```
+
+**Simple Explanation:**  
+The square root of 100 is 10, which is much less than 50 (100/2). This optimization skips checking numbers 51-99!
+
+---
+
+### ❓ Question 7: What about Newton's Method?
+
+**Answer:**  
+Newton's method is an alternative iterative approach:
 
 ```cpp
-int reverse(int x) {
-    string s = to_string(abs(x));  // Convert to string
-    reverse(s.begin(), s.end());   // Reverse the string
+int mySqrtNewton(int x) {
+    if (x == 0) return 0;
+    double x0 = x;
+    double x1 = (x0 + x / x0) / 2.0;
     
-    long long result = stoll(s);   // Convert back to number
-    if (x < 0) result = -result;   // Add negative sign back
+    while (abs(x0 - x1) >= 1) {
+        x0 = x1;
+        x1 = (x0 + x / x0) / 2.0;
+    }
     
-    // Check overflow
-    if (result > INT_MAX || result < INT_MIN) return 0;
-    
-    return result;
+    return (int)x1;
 }
 ```
 
-**Pros:** Easier to understand  
-**Cons:** Uses extra space O(log x), and string operations are slower
+**Pros:**
+- Converges very quickly (quadratic convergence)
+- Mathematically elegant
+
+**Cons:**
+- Uses floating-point arithmetic (less precise)
+- Harder to prove correctness in interviews
+
+**Binary search is preferred in interviews** because it's easier to explain and doesn't rely on floating-point precision.
 
 ---
 
-### ❓ Question 7: Can you explain overflow with a real example?
+### ❓ Question 8: How do you handle the edge case x = 0?
 
 **Answer:**  
-Let's reverse `1534236469`:
-
-```
-Step-by-step:
-ans = 0
-ans = 9 → Safe ✅
-ans = 96 → Safe ✅
-ans = 964 → Safe ✅
-ans = 9646 → Safe ✅
-ans = 96463 → Safe ✅
-ans = 964632 → Safe ✅
-ans = 9646324 → Safe ✅
-ans = 96463243 → Safe ✅
-ans = 964632435 → Safe ✅
-
-Next: ans = 964632435
-      ans > INT_MAX/10? 
-      964632435 > 214748364? YES! ⚠️
-      Return 0 (overflow would happen)
-```
-
-**Simple Explanation:**  
-It's like filling a glass with water. We stop BEFORE it overflows, not after!
-
----
-
-### ❓ Question 8: What if input is `0` or single digit?
-
-**Answer:**  
-```cpp
-reverse(0) = 0    // Zero stays zero
-reverse(5) = 5    // Single digit stays same
-reverse(-7) = -7  // Works for negative too
-```
-
-**Simple Explanation:**  
-The loop runs once (for single digit) or doesn't run at all (for zero). The algorithm handles these automatically!
-
----
-
-### ❓ Question 9: How do trailing zeros disappear?
-
-**Answer:**  
-```
-x = 1200
-Step 1: digit = 0, ans = 0*10 + 0 = 0
-Step 2: digit = 0, ans = 0*10 + 0 = 0
-Step 3: digit = 2, ans = 0*10 + 2 = 2
-Step 4: digit = 1, ans = 2*10 + 1 = 21
-```
-
-**Simple Explanation:**  
-When we build the number, multiplying `0 × 10` keeps it zero. The significant digits only appear when we process them. It's like writing "00021" - the leading zeros don't add value!
-
----
-
-### ❓ Question 10: What's the difference between `/` and `%` operators?
-
-**Answer:**  
+Handle it explicitly before the main loop:
 
 ```cpp
-int x = 1234;
-
-x % 10  →  4    // Gives REMAINDER (last digit)
-x / 10  →  123  // Gives QUOTIENT (removes last digit)
+if (x == 0) return 0;  // sqrt(0) = 0
+if (x == 1) return 1;  // sqrt(1) = 1
 ```
 
-**Visual Example:**
-```
-1234 ÷ 10 = 123 remainder 4
-         ↑              ↑
-      x / 10         x % 10
-```
+**Why separate handling?**
+- Avoids division by zero in some calculations
+- Makes the main algorithm cleaner
+- Faster execution (no unnecessary iterations)
 
 **Simple Explanation:**  
-- `%` (modulo) = "What's left over?" 
-- `/` (division) = "How many times does it fit?"
+It's like checking if a package is empty before trying to open it!
 
-Think of sharing 1234 candies among 10 friends:
-- Each gets 123 candies (`/`)
-- 4 candies remain (`%`)
+---
+
+### ❓ Question 9: What if the interviewer asks for decimal precision?
+
+**Answer:**  
+Modify the algorithm to search in floating-point space:
+
+```cpp
+double sqrtWithPrecision(int x, double epsilon) {
+    double s = 0, e = x;
+    double mid;
+    
+    while (e - s > epsilon) {
+        mid = s + (e - s) / 2;
+        double sqr = mid * mid;
+        
+        if (abs(sqr - x) < epsilon) {
+            return mid;
+        } else if (sqr < x) {
+            s = mid;
+        } else {
+            e = mid;
+        }
+    }
+    
+    return mid;
+}
+```
+
+**Key differences:**
+- Use `double` instead of `int`
+- Stop when difference < epsilon (precision threshold)
+- Don't need overflow protection (doubles have huge range)
+
+---
+
+### ❓ Question 10: How would you test this function?
+
+**Answer:**  
+Comprehensive test cases should include:
+
+**1. Perfect squares:**
+```cpp
+assert(mySqrt(0) == 0);
+assert(mySqrt(1) == 1);
+assert(mySqrt(4) == 2);
+assert(mySqrt(16) == 4);
+assert(mySqrt(1000000) == 1000);
+```
+
+**2. Non-perfect squares:**
+```cpp
+assert(mySqrt(2) == 1);
+assert(mySqrt(8) == 2);
+assert(mySqrt(15) == 3);
+```
+
+**3. Boundary cases:**
+```cpp
+assert(mySqrt(INT_MAX) == 46340);
+assert(mySqrt(2147395600) == 46340);  // 46340²
+```
+
+**4. Edge cases:**
+```cpp
+assert(mySqrt(0) == 0);
+assert(mySqrt(1) == 1);
+```
 
 ---
 
 ### 🎯 Common Interview Follow-ups
 
 **Q: "Can you optimize this further?"**  
-A: The algorithm is already optimal - O(log x) time and O(1) space. Can't do better!
+A: The algorithm is already optimal - O(log x) time and O(1) space. We can reduce the search space to [0, x/2] for x ≥ 4, but this is a constant factor improvement, not algorithmic.
 
-**Q: "What if we allow 64-bit integers?"**  
-A: Then we'd multiply by 10 without overflow checks, making it simpler but "cheating" the problem's intent.
+**Q: "What if we need to handle negative numbers?"**  
+A: Square roots of negative numbers are imaginary (complex numbers). In this problem, input is guaranteed non-negative. For a real-world implementation, we'd return an error or throw an exception for negative inputs.
 
-**Q: "How would you test this function?"**  
-A: Test cases should include:
-- Normal cases: `123`, `-456`
-- Edge cases: `0`, `5`, `-7`
-- Overflow cases: `1534236469`, `2147483647`
-- Trailing zeros: `1200`, `10000`
+**Q: "How would you parallelize this algorithm?"**  
+A: Binary search is inherently sequential - each step depends on the previous comparison. However, if you need to compute square roots for multiple numbers, you could parallelize across different inputs.
 
 ---
 
@@ -602,68 +696,84 @@ A: Test cases should include:
 ### 🔑 Essential Code Patterns
 
 ```cpp
-// Extract digits from right to left
-while (x != 0) {
-    int digit = x % 10;  // Get last digit
-    x = x / 10;          // Remove last digit
+// Binary search on answer space
+int s = 0, e = x - 1, ans = -1;
+while (s <= e) {
+    long long mid = s + (e - s) / 2;  // Prevent overflow
+    long long sqr = mid * mid;         // Use long long
+    
+    if (sqr == x) return mid;
+    else if (sqr < x) {
+        ans = mid;  // Store valid answer
+        s = mid + 1;
+    } else {
+        e = mid - 1;
+    }
 }
+return ans;
 
-// Build number from digits
-int result = 0;
-result = result * 10 + digit;
+// Edge case handling
+if (x == 0) return 0;
+if (x == 1) return 1;
 
-// Check overflow before multiplication
-if (result > INT_MAX/10 || result < INT_MIN/10) {
-    return 0;
-}
+// Overflow prevention
+long long mid = s + (e - s) / 2;  // Not (s + e) / 2
+long long sqr = mid * mid;         // Not int
 ```
 
 ### 📝 Important Constants
 
 ```cpp
-INT_MIN = -2,147,483,648  // Smallest 32-bit integer
-INT_MAX =  2,147,483,647  // Largest 32-bit integer
+INT_MAX = 2,147,483,647           // Largest 32-bit integer
+sqrt(INT_MAX) = 46340             // Maximum possible answer
+46340² = 2,147,395,600 < INT_MAX  // Fits in int
+46341² = 2,147,488,281 > INT_MAX  // Overflows!
 ```
 
 ### 🧠 Mental Model
 
 ```mermaid
-graph TD
-    A[Think of number as<br/>stack of digits] --> B[Pop digits one by one<br/>from right side]
-    B --> C[Build new number<br/>adding digits to left]
-    C --> D[Watch out for<br/>container overflow!]
+flowchart TD
+    A[Think of answer as<br/>hidden in range 0 to x] --> B[Use binary search<br/>to find it efficiently]
+    B --> C[Test each candidate<br/>by squaring it]
+    C --> D[Keep track of<br/>best valid answer]
+    D --> E[Watch out for<br/>overflow when squaring!]
     
     style A fill:#e1f5fe
     style B fill:#f3e5f5
     style C fill:#e8f5e8
     style D fill:#fff3e0
+    style E fill:#ffebee
 ```
 
 ---
 
 ## 🏆 Mastery Checklist
 
-- [ ] ✅ Understand digit extraction using `%` and `/`
-- [ ] ✅ Know how to build numbers digit by digit
-- [ ] ✅ Master overflow detection techniques
-- [ ] ✅ Handle negative numbers correctly
-- [ ] ✅ Deal with trailing zeros
+- [ ] ✅ Understand binary search on answer space concept
+- [ ] ✅ Know how to prevent integer overflow with long long
+- [ ] ✅ Master the "store valid answer" pattern
+- [ ] ✅ Handle edge cases (0, 1) correctly
+- [ ] ✅ Calculate midpoint safely to avoid overflow
 - [ ] ✅ Solve the problem in O(log x) time
 - [ ] ✅ Use O(1) space only
 - [ ] ✅ Test all edge cases thoroughly
-- [ ] ✅ Answer common interview questions confidently
+- [ ] ✅ Explain algorithm clearly in interviews
+- [ ] ✅ Compare with alternative approaches (Newton's method)
 
 ---
 
 ## 💡 Pro Tips
 
-1. **🛡️ Safety First**: Always check for overflow BEFORE performing operations
-2. **🔢 Practice Mental Math**: Understand what `123 % 10` and `123 / 10` do
-3. **🧪 Test Edge Cases**: Zero, single digits, negative numbers, overflow cases
-4. **📚 Learn the Pattern**: This digit manipulation technique appears in many problems
-5. **🎯 Visualize**: Draw out the step-by-step process for complex examples
-6. **💼 Prepare Stories**: Be ready to explain your logic clearly in interviews
+1. **🛡️ Safety First**: Always use `long long` when squaring mid values
+2. **🎯 Answer Tracking**: Store valid candidates during binary search
+3. **🧪 Test Edge Cases**: Zero, one, perfect squares, INT_MAX
+4. **📚 Learn the Pattern**: "Binary search on answer" appears in many problems
+5. **🔍 Visualize**: Draw out the search space and elimination process
+6. **💼 Prepare Stories**: Be ready to explain overflow prevention clearly
+7. **⚡ Optimize Wisely**: Search space [0, x/2] for x ≥ 4
+8. **🧮 Know the Math**: sqrt(INT_MAX) = 46340 (useful fact!)
 
 ---
 
-**🎉 Congratulations! You now have a complete understanding of integer reversal, overflow handling, and can confidently answer interview questions. Keep practicing and happy coding!**
+**🎉 Congratulations! You now have a complete understanding of computing integer square roots using binary search on answer space, overflow handling, and can confidently answer interview questions. Keep practicing and happy coding!**
