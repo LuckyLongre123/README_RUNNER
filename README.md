@@ -1,4 +1,4 @@
-# 🔍 Sqrt(x) - Complete Beginner's Guide
+# Day 15: 🔍 Sqrt(x) - Complete Beginner's Guide
 
 > **Master binary search on answer space and overflow handling step by step!**
 
