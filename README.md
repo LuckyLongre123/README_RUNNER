@@ -1,6 +1,6 @@
-# Day 17: 🔢 Count Primes - Complete Beginner's Guide
+# Day 18: 🔍 Search in Rotated Sorted Array - Complete Beginner's Guide
 
-> **Master the Sieve of Eratosthenes and efficient prime number algorithms step by step!**
+> **Master binary search in rotated arrays and handle rotation points like a pro!**
 
 
 ---
@@ -8,10 +8,10 @@
 ## 📖 What You'll Learn
 
 By the end of this guide, you'll master:
-- 🔢 **Prime Number Theory** - Understanding what makes numbers prime
-- 🎯 **Sieve of Eratosthenes** - Ancient yet efficient algorithm for finding primes
-- 🚀 **Algorithm Optimization** - Why starting from i² matters
-- 🧮 **Mathematical Efficiency** - Near-linear time complexity for prime counting
+- 🔄 **Rotated Array Concepts** - Understanding array rotation and its properties
+- 🔍 **Modified Binary Search** - Adapting binary search for rotated arrays
+- 🎯 **Sorted Portion Detection** - Identifying which half is sorted
+- 🧮 **Range Checking** - Determining target position in sorted portions
 
 ---
 
@@ -19,230 +19,233 @@ By the end of this guide, you'll master:
 
 ### 📋 Problem Statement
 
-**Given**: An integer `n`  
-**Task**: Return the count of prime numbers that are strictly less than `n`  
-**Definition**: A prime number is a natural number greater than 1 with no positive divisors other than 1 and itself
+**Given**: An integer array `nums` sorted in ascending order (with distinct values), rotated at an unknown pivot  
+**Task**: Search for a `target` value and return its index  
+**Catch**: You must achieve O(log n) runtime complexity
+
+**Important Rule**: The array was originally sorted, then rotated at some pivot!
 
 ### 🌟 Real-World Example
 
-Think of prime numbers as "building blocks" of all numbers:
-- **n = 10** → Primes: 2, 3, 5, 7 → **Count: 4**
-- **n = 20** → Primes: 2, 3, 5, 7, 11, 13, 17, 19 → **Count: 8**
-- **n = 2** → No primes less than 2 → **Count: 0**
+Think of it like a circular bookshelf that has been rotated:
+- **Original**: `[1, 2, 3, 4, 5, 6, 7]` (sorted books)
+- **Rotated**: `[4, 5, 6, 7, 1, 2, 3]` (bookshelf rotated)
+- **Task**: Find book number `5` efficiently without checking every book!
 
 ---
 
 ## 🔍 Understanding the Basics
 
-### 🏗️ What Are Prime Numbers?
+### 🏗️ What Is Array Rotation?
 
 ```mermaid
 flowchart LR
-    A[Prime Numbers] --> B[Greater than 1]
-    A --> C[Only divisible by<br/>1 and itself]
-    A --> D[Examples:<br/>2, 3, 5, 7, 11, 13]
+    A["Original Array<br/>[1,2,3,4,5,6,7]"] --> B["Rotate at index 3"]
+    B --> C["Rotated Array<br/>[4,5,6,7,1,2,3]"]
     
-    style A fill:#e1f5fe
-    style B fill:#e8f5e8
-    style C fill:#fff3e0
-    style D fill:#f3e5f5
+    style A fill:#e8f5e8
+    style B fill:#fff3e0
+    style C fill:#e1f5fe
 ```
 
-**Key Properties:**
-- The number **2** is the only even prime
-- All other primes are odd numbers
-- Every number can be expressed as a product of primes (Fundamental Theorem of Arithmetic)
+**Think of it like a clock:**
+- Rotation point (pivot) divides the array into two sorted portions
+- Left portion: `[4, 5, 6, 7]` (sorted)
+- Right portion: `[1, 2, 3]` (sorted)
+- But together, they're not fully sorted!
 
-### 🎲 Naive vs. Efficient Approach
+### 🎲 Key Property: Always One Half Is Sorted
 
 ```mermaid
 flowchart TD
-    A[Problem: Count primes < n] --> B{Which approach?}
-    B -->|Naive| C[Check each number<br/>O n√n]
-    B -->|Efficient| D[Sieve of Eratosthenes<br/>O n log log n]
-    
-    C --> E[Too slow for<br/>large n ❌]
-    D --> F[Fast enough for<br/>n up to millions ✅]
+    A["Array: [4,5,6,7,1,2,3]<br/>Check mid = 7"] --> B{Which half<br/>is sorted?}
+    B -->|nums[start] <= nums[mid]| C["Left half sorted<br/>[4,5,6,7]"]
+    B -->|nums[mid] <= nums[end]| D["Right half sorted<br/>[1,2,3]"]
     
     style A fill:#e3f2fd
-    style C fill:#ffebee
-    style D fill:#e8f5e8
-    style E fill:#ff5252
-    style F fill:#4caf50
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
 ```
 
-**Why Sieve is Better:**
-- Instead of testing divisibility, we eliminate multiples
-- Reuses work from smaller primes
-- Near-linear performance in practice
+**Critical Insight:**
+- At any point in binary search, at least ONE half is sorted
+- We can check if target is in the sorted half
+- This guides our search direction!
 
 ---
 
 ## 📚 Step-by-Step Examples
 
-### 🟢 Example 1: Small Number (n = 10)
+### 🟢 Example 1: Target in Left Sorted Portion
 
-**Input:** `n = 10`  
-**Output:** `4` (primes: 2, 3, 5, 7)
+**Input:** `nums = [4,5,6,7,0,1,2]`, `target = 5`  
+**Output:** `1`
 
 ```mermaid
 flowchart TD
-    A[Start: Array 0-9<br/>All marked prime] --> B[Mark 0, 1 as not prime]
-    B --> C[i=2: Mark 4, 6, 8 as not prime]
-    C --> D[i=3: Mark 6, 9 as not prime<br/>6 already marked]
-    D --> E[i=4: Skip i*i=16 > 10]
-    E --> F[Count: 2, 3, 5, 7 = 4 ✅]
+    A["Start: [4,5,6,7,0,1,2]<br/>target=5, s=0, e=6"] --> B["mid=3, nums[mid]=7"]
+    B --> C{nums[s] <= nums[mid]?}
+    C -->|YES| D["Left sorted: [4,5,6,7]"]
+    D --> E{Is target in<br/>range [4,7]?}
+    E -->|YES| F["Search left: e=mid-1"]
+    F --> G["New range: [4,5,6]<br/>s=0, e=2"]
+    G --> H["mid=1, nums[mid]=5"]
+    H --> I["Found! Return 1"]
     
     style A fill:#e8f5e8
-    style F fill:#c8e6c9
+    style D fill:#c8e6c9
+    style I fill:#4caf50
 ```
 
-**Step-by-step visualization:**
+**Step-by-step breakdown:**
+1. **Start:** `s=0, e=6, mid=3, nums[mid]=7`
+2. **Check:** `nums[0]=4 <= nums[3]=7` → Left half sorted
+3. **Range:** Is `5` in `[4,7]`? YES!
+4. **Move:** Search left, set `e=2`
+5. **Next:** `mid=1, nums[1]=5` → Found!
 
-| Index | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
-|-------|---|---|---|---|---|---|---|---|---|---|
-| Initial | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| After 0,1 | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| After 2 | ✗ | ✗ | ✓ | ✓ | ✗ | ✓ | ✗ | ✓ | ✗ | ✓ |
-| After 3 | ✗ | ✗ | ✓ | ✓ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ |
-| **Primes** | | | **2** | **3** | | **5** | | **7** | | |
+### 🔴 Example 2: Target in Right Sorted Portion
 
-### 🔴 Example 2: Edge Case (n = 2)
-
-**Input:** `n = 2`  
-**Output:** `0` (no primes less than 2)
+**Input:** `nums = [4,5,6,7,0,1,2]`, `target = 0`  
+**Output:** `4`
 
 ```mermaid
 flowchart TD
-    A[n = 2] --> B{Is n <= 2?}
-    B -->|Yes| C[Return 0 immediately]
-    C --> D[No primes less than 2 ✅]
+    A["Start: [4,5,6,7,0,1,2]<br/>target=0, s=0, e=6"] --> B["mid=3, nums[mid]=7"]
+    B --> C{nums[s] <= nums[mid]?}
+    C -->|YES| D["Left sorted: [4,5,6,7]"]
+    D --> E{Is target in<br/>range [4,7]?}
+    E -->|NO| F["Search right: s=mid+1"]
+    F --> G["New range: [0,1,2]<br/>s=4, e=6"]
+    G --> H["mid=5, nums[mid]=1"]
+    H --> I{nums[mid] <= nums[e]?}
+    I -->|YES| J["Right sorted: [1,2]"]
+    J --> K{Is target in<br/>range [1,2]?}
+    K -->|NO| L["Search left: e=mid-1"]
+    L --> M["mid=4, nums[mid]=0"]
+    M --> N["Found! Return 4"]
     
     style A fill:#ffebee
-    style C fill:#ffcdd2
-    style D fill:#ef9a9a
+    style D fill:#ffcdd2
+    style N fill:#f44336
 ```
 
-**Why?**
-- By definition, primes are natural numbers **greater than 1**
-- Numbers 0 and 1 are not prime
-- So no primes exist less than 2
+### 🟡 Example 3: No Rotation (Sorted Array)
 
-### 🟡 Example 3: Medium Number (n = 20)
-
-**Input:** `n = 20`  
-**Output:** `8` (primes: 2, 3, 5, 7, 11, 13, 17, 19)
+**Input:** `nums = [1,2,3,4,5]`, `target = 3`  
+**Output:** `2`
 
 ```mermaid
 flowchart TD
-    A[Start: n=20] --> B[Mark multiples of 2<br/>4,6,8,10,12,14,16,18]
-    B --> C[Mark multiples of 3<br/>9,15 new]
-    C --> D[i=5: 5*5=25 > 20<br/>Stop outer loop]
-    D --> E[Count remaining:<br/>2,3,5,7,11,13,17,19 = 8 ✅]
+    A["Start: [1,2,3,4,5]<br/>target=3, s=0, e=4"] --> B["mid=2, nums[mid]=3"]
+    B --> C["Found immediately!"]
+    C --> D["Return 2"]
     
     style A fill:#fff8e1
-    style E fill:#ffecb3
+    style D fill:#ffecb3
 ```
 
-**Key Insight:** We stop at i=5 because 5² = 25 > 20. All composites less than 20 have already been marked!
+**Simple Case:** Works like normal binary search!
 
-### 🚨 Example 4: Understanding Why We Start from i²
+### 🚨 Example 4: Target Not Found
 
-**Why mark from i² instead of 2i?**
+**Input:** `nums = [4,5,6,7,0,1,2]`, `target = 3`  
+**Output:** `-1`
 
 ```mermaid
-flowchart LR
-    A[When i=5] --> B[5*2=10<br/>Already marked by 2]
-    A --> C[5*3=15<br/>Already marked by 3]
-    A --> D[5*4=20<br/>Already marked by 2]
-    A --> E[5*5=25<br/>First NEW composite!]
+flowchart TD
+    A["Search entire array"] --> B["Check all possibilities"]
+    B --> C["Target not in sorted ranges"]
+    C --> D["s > e condition met"]
+    D --> E["Return -1"]
     
     style A fill:#e1f5fe
-    style B fill:#ffebee
-    style C fill:#ffebee
-    style D fill:#ffebee
-    style E fill:#e8f5e8
+    style E fill:#ffebee
 ```
-
-**The Math:**
-- For any composite 5×k where k < 5
-- That number was already marked when we processed k
-- So we can start directly from 5² = 25!
 
 ---
 
 ## 🛠️ The Algorithm
 
-### 🎯 Main Strategy: Sieve of Eratosthenes
+### 🎯 Main Strategy: Identify Sorted Half
 
 ```mermaid
 flowchart TD
-    A[Create boolean array<br/>size n, all true] --> B[Mark 0 and 1 as false]
-    B --> C{i from 2 to √n}
-    C -->|i < √n| D{isPrime i ?}
-    D -->|Yes| E[Mark all multiples of i<br/>starting from i² as false]
-    E --> C
-    D -->|No| C
-    C -->|i >= √n| F[Count all true values<br/>from 2 to n-1]
-    F --> G[Return count]
+    A["Initialize s=0, e=n-1"] --> B{s <= e?}
+    B -->|No| Z["Return -1<br/>Not found"]
+    B -->|Yes| C["Calculate mid = s + (e-s)/2"]
+    C --> D{nums[mid] == target?}
+    D -->|Yes| E["Return mid"]
+    D -->|No| F{Is left half<br/>sorted?}
+    F -->|Yes| G{Target in<br/>left range?}
+    F -->|No| H{Target in<br/>right range?}
+    G -->|Yes| I["e = mid - 1"]
+    G -->|No| J["s = mid + 1"]
+    H -->|Yes| J
+    H -->|No| I
+    I --> B
+    J --> B
     
     style A fill:#e8f5e8
-    style E fill:#fff3e0
-    style G fill:#c8e6c9
+    style F fill:#fff3e0
+    style E fill:#c8e6c9
+    style Z fill:#ffebee
 ```
 
 ### 💻 The Code
 
 ```cpp
-int countPrimes(int n) {
-    if (n <= 2) return 0;
+int search(vector<int>& nums, int target) {
+    int s = 0, e = nums.size() - 1;
     
-    // Create sieve array
-    vector<bool> isPrime(n, true);
-    isPrime[0] = isPrime[1] = false;
-    
-    // Mark composites
-    for (int i = 2; i * i < n; ++i) {
-        if (isPrime[i]) {
-            // Start from i² and mark multiples
-            for (int j = i * i; j < n; j += i) {
-                isPrime[j] = false;
+    while(s <= e) {
+        int mid = s + (e - s) / 2;
+        
+        // 🎯 Found target!
+        if(nums[mid] == target) return mid;
+        
+        // 🔍 Check which half is sorted
+        if(nums[s] <= nums[mid]) {
+            // Left half is sorted
+            if(nums[s] <= target && target < nums[mid]) {
+                e = mid - 1;  // Target in left half
+            } else {
+                s = mid + 1;  // Target in right half
+            }
+        } else {
+            // Right half is sorted
+            if(nums[mid] < target && target <= nums[e]) {
+                s = mid + 1;  // Target in right half
+            } else {
+                e = mid - 1;  // Target in left half
             }
         }
     }
     
-    // Count primes
-    int count = 0;
-    for (int i = 2; i < n; ++i) {
-        if (isPrime[i]) count++;
-    }
-    
-    return count;
+    return -1;  // Not found
 }
 ```
 
-### 🛡️ Why Only Check Up to √n?
+### 🛡️ Why This Works: The Logic
 
-**Mathematical Proof:**
+**Key Insight:** At any mid point, ONE half must be sorted!
 
 ```mermaid
-flowchart TD
-    A[Any composite number n] --> B[n = a × b]
-    B --> C{Both a and b > √n ?}
-    C -->|If YES| D[Then a × b > n<br/>Contradiction! ❌]
-    C -->|So NO| E[At least one factor ≤ √n ✅]
-    E --> F[Therefore: Check only up to √n]
+flowchart LR
+    A["Array [4,5,6,7,0,1,2]"] --> B["Pick mid"]
+    B --> C{nums[s] <= nums[mid]?}
+    C -->|YES| D["Left sorted<br/>Use normal range check"]
+    C -->|NO| E["Right sorted<br/>Use normal range check"]
     
-    style A fill:#ffebee
-    style D fill:#ff5252
-    style E fill:#4caf50
-    style F fill:#81c784
+    style A fill:#e3f2fd
+    style D fill:#e8f5e8
+    style E fill:#fff3e0
 ```
 
-**The Logic:**
-- If n = a × b and both a, b > √n
-- Then a × b > √n × √n = n (impossible!)
-- So at least one factor must be ≤ √n
+**The Math:**
+- If `nums[start] <= nums[mid]`: Left portion is definitely sorted
+- Otherwise: Right portion is definitely sorted
+- In sorted portion: Use normal range checking!
 
 ---
 
@@ -250,177 +253,152 @@ flowchart TD
 
 ### ✅ Normal Cases
 
-| Input | Output | Primes |
-|-------|--------|--------|
-| `10` | `4` | 2, 3, 5, 7 |
-| `20` | `8` | 2, 3, 5, 7, 11, 13, 17, 19 |
-| `100` | `25` | 25 primes less than 100 |
+| Input Array | Target | Output | Why |
+|-------------|--------|--------|-----|
+| `[4,5,6,7,0,1,2]` | `5` | `1` | In left sorted portion |
+| `[4,5,6,7,0,1,2]` | `0` | `4` | In right sorted portion |
+| `[4,5,6,7,0,1,2]` | `7` | `3` | At rotation boundary |
 
 ### ⚠️ Edge Cases
 
-| Input | Output | Why |
-|-------|--------|-----|
-| `0` | `0` | No numbers to check |
-| `1` | `0` | No primes less than 1 |
-| `2` | `0` | No primes less than 2 |
-| `3` | `1` | Only prime 2 |
+| Input Array | Target | Output | Why |
+|-------------|--------|--------|-----|
+| `[1]` | `1` | `0` | Single element found |
+| `[1]` | `0` | `-1` | Single element not found |
+| `[1,3]` | `3` | `1` | Two elements |
+| `[3,1]` | `1` | `1` | Two elements rotated |
+| `[1,2,3,4,5]` | `3` | `2` | No rotation at all |
 
-### 🎯 Boundary Testing
+### 🎯 Rotation Scenarios
 
 ```mermaid
 flowchart TD
-    A[Test Categories] --> B[Edge Cases<br/>⚠️ n ≤ 2]
-    A --> C[Small Numbers<br/>✅ n < 100]
-    A --> D[Large Numbers<br/>🚀 n ≥ 1000]
+    A["Test Categories"] --> B["No Rotation<br/>✅ Regular binary search"]
+    A --> C["Light Rotation<br/>🔄 Rotate 1-2 positions"]
+    A --> D["Heavy Rotation<br/>🔄 Rotate many positions"]
+    A --> E["Boundary Cases<br/>⚠️ Target at pivot"]
     
-    B --> B1[n=0 → 0]
-    B --> B2[n=1 → 0]
-    B --> B3[n=2 → 0]
+    B --> B1["[1,2,3,4,5] → 3"]
+    C --> C1["[5,1,2,3,4] → 1"]
+    D --> D1["[4,5,6,7,0,1,2] → 0"]
+    E --> E1["[4,5,6,7,0,1,2] → 7"]
     
-    C --> C1[n=10 → 4]
-    C --> C2[n=20 → 8]
-    C --> C3[n=50 → 15]
-    
-    D --> D1[n=1000 → 168]
-    D --> D2[n=5000 → 669]
-    D --> D3[n=10000 → 1229]
-    
-    style B fill:#ffebee
-    style C fill:#e8f5e8
-    style D fill:#e3f2fd
+    style B fill:#e8f5e8
+    style C fill:#fff3e0
+    style D fill:#e1f5fe
+    style E fill:#ffebee
 ```
 
 ---
 
 ## 🎓 Key Concepts Mastery
 
-### 🔢 Prime Number Properties
+### 🔢 Binary Search Adaptation
 
-**1. Fundamental Properties:**
+**1. Calculate Mid (Overflow-Safe):**
 ```cpp
-// Only 2 is even and prime
-bool isEvenPrime = (n == 2);
-
-// All primes > 2 are odd
-// But not all odd numbers are prime!
+int mid = s + (e - s) / 2;
+// NOT: mid = (s + e) / 2  (can overflow!)
 ```
 
-**2. Prime Density:**
+**2. Identify Sorted Half:**
 ```cpp
-// Prime Number Theorem: 
-// Number of primes ≤ n ≈ n / ln(n)
-// Example: For n=1000000, expect ~72,382 primes
-```
-
-**3. Testing Primality:**
-```cpp
-// To test if n is prime, check divisors up to √n
-bool isPrime(int n) {
-    if (n <= 1) return false;
-    if (n <= 3) return true;
-    if (n % 2 == 0 || n % 3 == 0) return false;
-    for (int i = 5; i * i <= n; i += 6) {
-        if (n % i == 0 || n % (i + 2) == 0)
-            return false;
-    }
-    return true;
+if (nums[s] <= nums[mid]) {
+    // Left half is sorted
 }
 ```
 
-### ⚠️ Sieve Optimization Techniques
+**3. Range Checking in Sorted Half:**
+```cpp
+if (nums[s] <= target && target < nums[mid]) {
+    // Target in left sorted range
+}
+```
+
+### ⚠️ Common Pitfalls & Solutions
 
 ```mermaid
 flowchart LR
-    A[Basic Sieve] --> B[Start from 2i]
-    B --> C[Optimized Sieve<br/>Start from i²]
-    C --> D[Segmented Sieve<br/>For very large n]
-    D --> E[Wheel Factorization<br/>Skip even/multiple of 3]
+    A["Common Mistakes"] --> B["Using == instead of <=<br/>for sorted check"]
+    A --> C["Forgetting mid element<br/>in range check"]
+    A --> D["Wrong inequality<br/>directions"]
     
-    style A fill:#e3f2fd
-    style C fill:#fff3e0
-    style E fill:#e8f5e8
+    B --> B1["Fix: nums[s] <= nums[mid]"]
+    C --> C1["Fix: target < nums[mid]"]
+    D --> D1["Fix: Check carefully!"]
+    
+    style A fill:#ffebee
+    style B1 fill:#e8f5e8
+    style C1 fill:#e8f5e8
+    style D1 fill:#e8f5e8
 ```
 
-**Key Optimizations:**
-1. **Start from i²**: Smaller multiples already marked
-2. **Only check to √n**: Mathematical guarantee
-3. **Skip even numbers**: Only 2 is even prime
-4. **Use bit array**: Reduce space by 8x
+**Pattern to Remember:**
+```cpp
+// For left sorted portion:
+if (nums[s] <= nums[mid]) {
+    if (nums[s] <= target && target < nums[mid]) {
+        // Target in left
+    }
+}
 
-### 🎯 Algorithm Comparison
+// For right sorted portion:
+else {
+    if (nums[mid] < target && target <= nums[e]) {
+        // Target in right
+    }
+}
+```
+
+### 🎯 Problem-Solving Framework
 
 ```mermaid
 flowchart TD
-    A[Prime Counting Methods] --> B[Trial Division<br/>O n√n]
-    A --> C[Sieve of Eratosthenes<br/>O n log log n]
-    A --> D[Segmented Sieve<br/>O n log log n, better space]
-    A --> E[Atkin's Sieve<br/>O n / log log n]
-    
-    B --> B1[Simple but slow]
-    C --> C1[Best for most cases ✅]
-    D --> D1[Best for huge n]
-    E --> E1[Complex, rarely needed]
+    A["Read Problem"] --> B["Identify Rotation"]
+    B --> C["Plan Binary Search"]
+    C --> D["Handle Sorted Detection"]
+    D --> E["Implement Range Checking"]
+    E --> F["Test All Scenarios"]
     
     style A fill:#e1f5fe
+    style B fill:#f3e5f5
     style C fill:#e8f5e8
-    style C1 fill:#4caf50
+    style D fill:#fff3e0
+    style E fill:#fce4ec
+    style F fill:#e0f2f1
 ```
 
 ---
 
 ## 📊 Complexity Analysis
 
-### ⏰ Time Complexity: O(n log log n)
+### ⏰ Time Complexity: O(log n)
 
-**Why this complexity?**
-- Outer loop: runs up to √n iterations
-- Inner loop: for prime p, marks n/p multiples
-- Total operations: n/2 + n/3 + n/5 + n/7 + ... = n(1/2 + 1/3 + 1/5 + ...)
-- This sum equals O(n log log n) by prime harmonic series
+**Why logarithmic?**
+- We halve the search space each iteration
+- Similar to standard binary search
+- Number of iterations = ⌊log₂ n⌋
 
 ```mermaid
 flowchart TD
-    A[Operations for each prime p] --> B[Mark n/p multiples]
-    B --> C[p=2: n/2 ops]
-    B --> D[p=3: n/3 ops]
-    B --> E[p=5: n/5 ops]
-    B --> F[p=7: n/7 ops]
-    
-    C --> G[Total: n 1/2+1/3+1/5+...]
-    D --> G
-    E --> G
-    F --> G
-    
-    G --> H[= O n log log n]
+    A["Array Size"] --> B["n = 8: 3 iterations"]
+    A --> C["n = 16: 4 iterations"]
+    A --> D["n = 1024: 10 iterations"]
+    A --> E["Each step halves space"]
     
     style A fill:#e3f2fd
-    style H fill:#4caf50
+    style B fill:#e8f5e8
+    style C fill:#e8f5e8
+    style D fill:#e8f5e8
+    style E fill:#fff3e0
 ```
 
-**Comparison:**
-| Algorithm | Time Complexity | Notes |
-|-----------|----------------|-------|
-| Trial Division | O(n√n) | Too slow |
-| Sieve of Eratosthenes | O(n log log n) | Best for most cases |
-| Segmented Sieve | O(n log log n) | Better space |
+### 💾 Space Complexity: O(1)
 
-### 💾 Space Complexity: O(n)
-
-**Why linear space?**
-- Need boolean array of size n
-- Each element: 1 bit (optimized) or 1 byte (simple)
-- Total: n bits or n bytes
-
-**Space Optimization:**
-```cpp
-// Standard: O(n) bytes
-vector<bool> isPrime(n);
-
-// Optimized: O(n/8) bytes using bitset
-bitset<10000000> isPrime;
-
-// Segmented: O(√n) by processing chunks
-```
+**Why constant space?**
+- Only use a few variables: `s`, `e`, `mid`
+- No arrays, recursion, or extra data structures
+- Memory usage doesn't grow with input size
 
 ---
 
@@ -430,308 +408,271 @@ Once you master this, try these similar problems:
 
 | Problem | Difficulty | Key Concept |
 |---------|------------|-------------|
-| 🔢 Prime Number of Set Bits | Easy | Prime + Bit manipulation |
-| 🧮 Ugly Number II | Medium | Prime factorization |
-| 💫 Count Primes in Ranges | Hard | Segmented sieve |
-| 🔄 Nth Prime Number | Medium | Sieve application |
+| 🔍 Find Minimum in Rotated Sorted Array | Medium | Rotation point detection |
+| 🔢 Search in Rotated Sorted Array II | Medium | Handling duplicates |
+| 🎯 Find Peak Element | Medium | Modified binary search |
+| 🔄 Rotate Array | Medium | Array rotation |
 
 ---
 
 ## 💼 Interview Questions & Answers
 
-### ❓ Question 1: Why is the Sieve of Eratosthenes efficient?
+### ❓ Question 1: How do you determine which half is sorted?
 
 **Answer:**  
-The Sieve is efficient because it eliminates multiples rather than testing divisibility:
-- Instead of testing each number (expensive), we mark composites (cheap)
-- Reuses information: if we know 2 is prime, we can mark all even numbers
-- Works in one pass through the array
+Compare `nums[start]` with `nums[mid]`:
+- If `nums[start] <= nums[mid]`: Left half is sorted
+- Otherwise: Right half is sorted
 
 **Simple Explanation:**  
-It's like finding weeds in a garden. Instead of inspecting each plant individually, you spray herbicide that kills all weeds at once. Much faster!
+Think of it like checking a bent ruler. If the left side goes up smoothly, it's straight (sorted). If it jumps down, the bend is on the left, so the right side is straight!
+
+```cpp
+if (nums[s] <= nums[mid]) {
+    // Left half: [s...mid] is sorted
+} else {
+    // Right half: [mid...e] is sorted
+}
+```
 
 ---
 
-### ❓ Question 2: Why do we start marking from i² instead of 2i?
+### ❓ Question 2: Why use <= instead of < for sorted check?
 
 **Answer:**  
-All multiples of i less than i² have already been marked by smaller primes.
-
-**Proof by example (i=5):**
-- 5×2 = 10 (already marked when we processed 2)
-- 5×3 = 15 (already marked when we processed 3)
-- 5×4 = 20 (already marked when we processed 2, since 4=2×2)
-- 5×5 = 25 (first NEW composite!)
+The `<=` handles the case when the array is not rotated at all (or minimally rotated).
 
 **Simple Explanation:**  
-If you're cleaning multiples of 5, the numbers 10, 15, 20 were already cleaned when you did 2 and 3. Start fresh from 25!
-
----
-
-### ❓ Question 3: Why only check up to √n?
-
-**Answer:**  
-Any composite number n must have at least one factor ≤ √n.
-
-**Mathematical Proof:**
-- Assume n = a × b where both a, b > √n
-- Then a × b > √n × √n = n (contradiction!)
-- Therefore, at least one factor must be ≤ √n
-
-**Simple Explanation:**  
-Factors come in pairs. If one is big (>√n), the other must be small (≤√n). So checking small factors is enough!
+If `nums[start] == nums[mid]` might happen when start and mid are in the same sorted region. Using `<=` ensures we correctly identify this as sorted.
 
 **Code Example:**
 ```cpp
-// For n = 100, only check up to 10
-for (int i = 2; i * i < 100; ++i) {
-    // i goes: 2, 3, 4, 5, 6, 7, 8, 9, 10
-    // Checks all necessary factors
+// Array: [1,2,3,4,5]
+// s=0, mid=2
+// nums[0]=1, nums[2]=3
+// 1 <= 3 is TRUE → correctly identifies left as sorted
+```
+
+---
+
+### ❓ Question 3: What's the difference from regular binary search?
+
+**Answer:**  
+Regular binary search assumes entire array is sorted. Here:
+- We check which HALF is sorted first
+- Then apply range checking only on the sorted half
+- The rotation adds this extra step
+
+**Simple Explanation:**  
+```
+Regular BS:  Check if target > mid → go right or left
+Rotated BS:  Find sorted half → check if target in sorted half → decide direction
+```
+
+---
+
+### ❓ Question 4: How do you handle the range checking?
+
+**Answer:**  
+For the sorted half, use normal range checking:
+- Left sorted: `nums[s] <= target && target < nums[mid]`
+- Right sorted: `nums[mid] < target && target <= nums[e]`
+
+**Simple Explanation:**  
+It's like asking: "Is the number I'm looking for between these two bookends?" Only works if the books are in order (sorted)!
+
+**Visual:**
+```
+Left sorted [4,5,6,7]:
+    If target=5: 4 <= 5 < 7? YES → search left
+    If target=1: 4 <= 1 < 7? NO → search right
+```
+
+---
+
+### ❓ Question 5: What's the time complexity and why?
+
+**Answer:**  
+**Time: O(log n)** - We eliminate half the array each iteration
+
+**Simple Explanation:**  
+```
+n = 8   → 3 steps (8 → 4 → 2 → 1)
+n = 16  → 4 steps (16 → 8 → 4 → 2 → 1)
+n = 32  → 5 steps (32 → 16 → 8 → 4 → 2 → 1)
+Pattern: log₂(n)
+```
+
+**Space: O(1)** - Only use 3 variables (`s`, `e`, `mid`)
+
+---
+
+### ❓ Question 6: What if the array has duplicates?
+
+**Answer:**  
+The current solution assumes distinct values. With duplicates:
+- `nums[s] == nums[mid]` could mean both sorted or not
+- We'd need to handle this case separately
+- Worst case becomes O(n)
+
+**Simple Explanation:**  
+Imagine finding a book in a shelf where some books have the same number. You can't tell if the shelf is rotated just by comparing the ends. You'd need to check more carefully!
+
+**Modified approach:**
+```cpp
+if (nums[s] == nums[mid] && nums[mid] == nums[e]) {
+    s++;  // Skip duplicate
+    e--;  // Can't determine, linear scan
 }
 ```
 
 ---
 
-### ❓ Question 4: What's the time complexity and how is it derived?
+### ❓ Question 7: Can you trace through a complex example?
 
 **Answer:**  
-**Time: O(n log log n)**
+Let's trace `nums = [6,7,0,1,2,4,5]`, `target = 4`:
 
-**Derivation:**
 ```
-Operations = n/2 + n/3 + n/5 + n/7 + n/11 + ...
-           = n × (1/2 + 1/3 + 1/5 + 1/7 + ...)
-           = n × (sum of reciprocals of primes up to n)
-           = n × O(log log n)  [by Mertens' theorem]
+Iteration 1:
+  s=0, e=6, mid=3
+  nums[mid]=1, target=4
+  nums[0]=6 <= nums[3]=1? NO → right sorted
+  1 < 4 <= 5? YES → search right
+  s=4, e=6
+
+Iteration 2:
+  s=4, e=6, mid=5
+  nums[mid]=4, target=4
+  Found! Return 5
 ```
 
 **Simple Explanation:**  
-It's almost linear! The log log n part is so tiny:
-- log log 1000 ≈ 2.6
-- log log 1,000,000 ≈ 3.9
-- log log 1,000,000,000 ≈ 5.1
-
-So for practical purposes, it's nearly O(n)!
-
-**Space: O(n)** - One boolean per number
+Like finding a page in a torn and reassembled book. First, figure out which part is in order, then check if your page is in that part!
 
 ---
 
-### ❓ Question 5: Can we do better than O(n) space?
+### ❓ Question 8: What are the critical edge cases?
 
 **Answer:**  
-Yes! Use a **Segmented Sieve** for O(√n) space:
+1. **Single element**: `[1]`, `target=1` → return 0
+2. **Two elements**: `[1,3]`, `[3,1]` → check both rotations
+3. **No rotation**: `[1,2,3,4,5]` → works as normal binary search
+4. **Target at pivot**: `[4,5,6,7,0,1,2]`, `target=7` or `0`
+5. **Target not found**: Should return -1
 
-**Approach:**
-1. Find all primes up to √n using regular sieve: O(√n) space
-2. Process range [√n, n] in segments of size √n
-3. For each segment, mark composites using primes from step 1
-
-**Simple Explanation:**  
-Instead of one huge array, use a small array and process the range in chunks. Like washing a big floor with a small bucket - you do sections at a time!
-
-**Space Comparison:**
-```
-Regular Sieve:     O(n) space
-Segmented Sieve:   O(√n) space
-For n=1,000,000:   1MB vs 1KB savings!
-```
-
----
-
-### ❓ Question 6: How does this compare to checking each number individually?
-
-**Answer:**  
-**Naive approach:** Check if each number from 2 to n-1 is prime
-
+**Testing Strategy:**
 ```cpp
-// Naive: O(n√n) time
-int countPrimes(int n) {
-    int count = 0;
-    for (int i = 2; i < n; ++i) {
-        if (isPrime(i)) count++;  // O(√i) per check
-    }
-    return count;
-}
+Test(no rotation);
+Test(rotated at each position);
+Test(single & two elements);
+Test(target at boundaries);
+Test(target not present);
 ```
-
-**Time Comparison:**
-```
-n = 100:
-- Naive: ~1,000 operations
-- Sieve: ~100 operations (10x faster!)
-
-n = 1,000,000:
-- Naive: ~1,000,000,000 operations
-- Sieve: ~20,000,000 operations (50x faster!)
-```
-
-**Simple Explanation:**  
-Naive is like knocking on every door to ask "are you prime?"  
-Sieve is like sending one message that marks all non-primes. Much smarter!
 
 ---
 
-### ❓ Question 7: What if n is very large (e.g., 10⁹)?
+### ❓ Question 9: How does rotation affect the algorithm?
 
 **Answer:**  
-For extremely large n, use these techniques:
+Rotation creates two sorted subarrays:
+- Original: `[0,1,2,4,5,6,7]`
+- Rotated: `[4,5,6,7,0,1,2]`
+  - Left part: `[4,5,6,7]` sorted
+  - Right part: `[0,1,2]` sorted
 
-**1. Segmented Sieve:**
-- Space: O(√n) instead of O(n)
-- Process range in chunks
-
-**2. Parallel Sieve:**
-- Mark different ranges on different CPU cores
-- Near-linear speedup with cores
-
-**3. Bit Packing:**
-- Use 1 bit per number instead of 1 byte
-- 8x space reduction
-
-**4. Skip Evens:**
-- Only store odd numbers
-- 2x space reduction
+**Impact:**
+- Can't use simple comparison `nums[mid]` vs `target`
+- Must first identify which half is sorted
+- Then use range checking on sorted half
 
 **Simple Explanation:**  
-It's like organizing a huge library:
-- Segmented: Process one shelf at a time
-- Parallel: Multiple librarians working together
-- Bit packing: Compress book labels
-- Skip evens: Only catalog odd-numbered books
+It's like a conveyor belt that wrapped around. One section is still going up smoothly (sorted), the other jumped back to the start!
 
 ---
 
-### ❓ Question 8: Why is 2 the only even prime?
+### ❓ Question 10: Can you optimize further?
 
 **Answer:**  
-**By definition:** All even numbers greater than 2 are divisible by 2, so they have a divisor other than 1 and themselves.
+This is already optimal! 
 
-**Proof:**
-- 2 is prime (only divisors: 1, 2)
-- 4 = 2×2 (divisible by 2, not prime)
-- 6 = 2×3 (divisible by 2, not prime)
-- Any even n = 2×k where k ≥ 2 (not prime)
+**Why O(log n) is best:**
+- Any comparison-based search needs to check elements
+- Binary search eliminates half each time
+- Can't do better than O(log n) for worst case
 
-**Simple Explanation:**  
-By definition, even means "divisible by 2". If a number > 2 is divisible by 2, it has 2 as a factor, so it's not prime!
+**Space is already O(1):**
+- Only use constant variables
+- No recursion overhead in iterative approach
 
-This is why many optimizations skip even numbers entirely.
-
----
-
-### ❓ Question 9: What's the difference between Sieve of Eratosthenes and Sieve of Atkin?
-
-**Answer:**  
-**Sieve of Eratosthenes:**
-- Time: O(n log log n)
-- Simple to implement
-- Best for most practical use cases
-
-**Sieve of Atkin:**
-- Time: O(n / log log n) - theoretically faster
-- Much more complex to implement
-- Uses quadratic forms and modular arithmetic
-
-**Practical Reality:**
-- Atkin is faster only for n > 10¹⁰
-- Eratosthenes has better cache performance
-- For coding interviews: always use Eratosthenes!
-
-**Simple Explanation:**  
-Eratosthenes is like using a simple, reliable car.  
-Atkin is like using a Formula 1 race car - faster on paper, but needs expert handling and only worth it for very long distances.
-
----
-
-### ❓ Question 10: How do you handle the case where n ≤ 2?
-
-**Answer:**  
-**Edge case handling:**
-```cpp
-if (n <= 2) return 0;
-```
-
-**Reasoning:**
-- n = 0: No numbers to check → 0 primes
-- n = 1: Only number 0 exists, not prime → 0 primes
-- n = 2: Only numbers 0, 1 exist, both not prime → 0 primes
-
-**Simple Explanation:**  
-Primes start at 2. If we're looking for primes *less than* 2, there are none!
-
-**Why this matters:**
-- Prevents array allocation for negative/zero size
-- Avoids unnecessary computation
-- Returns correct answer immediately
+**Possible variations:**
+- Recursive version (same time, O(log n) space for call stack)
+- Handle duplicates (but time becomes O(n) worst case)
 
 ---
 
 ### 🎯 Common Interview Follow-ups
 
-**Q: "Can you optimize space further?"**  
-A: Yes! Use bitset (1 bit per number) or only store odd numbers (2x reduction).
+**Q: "What if array can have duplicates?"**  
+A: Need to handle `nums[s] == nums[mid]` case. Skip duplicates or use linear search. Worst case: O(n).
 
-**Q: "What if we need primes in a range [L, R] instead of [0, n]?"**  
-A: Use segmented sieve: find primes up to √R, then mark composites in [L, R].
+**Q: "Can you find the rotation point?"**  
+A: Similar approach, but find where `nums[i] > nums[i+1]`. That's the pivot!
 
-**Q: "How would you find the nth prime number?"**  
-A: Run sieve up to an estimated upper bound (n × ln n × 1.3), then count to nth prime.
-
-**Q: "Can this algorithm be parallelized?"**  
-A: Yes! Different segments can be processed on different cores. Nearly linear speedup.
+**Q: "How would you test this function?"**  
+A: Test cases should include:
+- No rotation: `[1,2,3,4,5]`
+- Full rotation scenarios: rotated at each index
+- Edge cases: single element, two elements
+- Target at boundaries and not found
 
 ---
 
 ## 🎯 Quick Reference
 
-### 🔑 Essential Code Pattern
+### 🔑 Essential Code Patterns
 
 ```cpp
-// Sieve of Eratosthenes template
-int countPrimes(int n) {
-    if (n <= 2) return 0;
-    
-    vector<bool> isPrime(n, true);
-    isPrime[0] = isPrime[1] = false;
-    
-    for (int i = 2; i * i < n; ++i) {
-        if (isPrime[i]) {
-            for (int j = i * i; j < n; j += i) {
-                isPrime[j] = false;
-            }
-        }
-    }
-    
-    int count = 0;
-    for (int i = 2; i < n; ++i) {
-        if (isPrime[i]) count++;
-    }
-    return count;
+// Safe mid calculation (avoid overflow)
+int mid = s + (e - s) / 2;
+
+// Identify sorted half
+if (nums[s] <= nums[mid]) {
+    // Left half sorted: [s...mid]
+} else {
+    // Right half sorted: [mid...e]
 }
+
+// Range check in sorted portion
+// Left: nums[s] <= target < nums[mid]
+// Right: nums[mid] < target <= nums[e]
 ```
 
-### 📝 Important Facts
+### 📝 Decision Tree
 
 ```cpp
-// First 10 primes
-int firstPrimes[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
+if (nums[mid] == target) return mid;
 
-// Prime counting function approximation
-// π(n) ≈ n / ln(n)  [Prime Number Theorem]
-
-// Time complexity
-// Sieve: O(n log log n)
-// Naive: O(n√n)
+if (nums[s] <= nums[mid]) {  // Left sorted
+    if (nums[s] <= target && target < nums[mid])
+        e = mid - 1;  // Go left
+    else
+        s = mid + 1;  // Go right
+} else {  // Right sorted
+    if (nums[mid] < target && target <= nums[e])
+        s = mid + 1;  // Go right
+    else
+        e = mid - 1;  // Go left
+}
 ```
 
 ### 🧠 Mental Model
 
 ```mermaid
 flowchart TD
-    A[Think of sieve as<br/>crossing out composites] --> B[Start with all numbers<br/>marked as potential primes]
-    B --> C[For each prime found<br/>cross out its multiples]
-    C --> D[What remains uncrossed<br/>are the primes!]
+    A["Rotated array has<br/>two sorted pieces"] --> B["Find which piece<br/>contains mid"]
+    B --> C["Check if target<br/>in sorted piece"]
+    C --> D["Move to correct<br/>half"]
     
     style A fill:#e1f5fe
     style B fill:#f3e5f5
@@ -743,29 +684,27 @@ flowchart TD
 
 ## 🏆 Mastery Checklist
 
-- [ ] ✅ Understand what makes a number prime
-- [ ] ✅ Know why naive approach is slow (O(n√n))
-- [ ] ✅ Master Sieve of Eratosthenes algorithm
-- [ ] ✅ Understand why we start marking from i²
-- [ ] ✅ Know why we only check up to √n
-- [ ] ✅ Grasp the O(n log log n) complexity
-- [ ] ✅ Handle edge cases (n ≤ 2)
-- [ ] ✅ Explain optimization techniques
-- [ ] ✅ Test with various input sizes
-- [ ] ✅ Answer interview questions confidently
+- [ ] ✅ Understand array rotation concept
+- [ ] ✅ Identify sorted half using comparison
+- [ ] ✅ Apply range checking in sorted portions
+- [ ] ✅ Handle edge cases (single element, no rotation)
+- [ ] ✅ Calculate mid safely (avoid overflow)
+- [ ] ✅ Solve the problem in O(log n) time
+- [ ] ✅ Use O(1) space only
+- [ ] ✅ Test rotation at all positions
+- [ ] ✅ Answer common interview questions confidently
 
 ---
 
 ## 💡 Pro Tips
 
-1. **🛡️ Start from i²**: Crucial optimization that reduces redundant operations
-2. **🔢 Check to √n**: Mathematical guarantee eliminates half the iterations
-3. **🧪 Test Edge Cases**: Always test n ≤ 2, small numbers, and large numbers
-4. **📚 Know the Theory**: Understand prime number theorem and complexity derivation
-5. **🎯 Visualize the Process**: Draw arrays and mark composites to understand flow
-6. **💼 Practice Variations**: Segmented sieve, prime ranges, nth prime problems
-7. **🚀 Understand Tradeoffs**: Space vs time, simplicity vs optimization
+1. **🔍 Always Check Sorted First**: Before range checking, determine which half is sorted
+2. **⚠️ Use <= Not <**: For sorted detection, `nums[s] <= nums[mid]` handles non-rotated cases
+3. **🧪 Test Rotation Points**: Test when target is at/near the rotation boundary
+4. **📚 Master the Pattern**: This technique applies to many rotated array problems
+5. **🎯 Draw It Out**: Visualize the two sorted portions for complex cases
+6. **💼 Explain Clearly**: Be ready to explain why one half must always be sorted
 
 ---
 
-**🎉 Congratulations! You now have a complete understanding of the Sieve of Eratosthenes, prime counting algorithms, and can confidently solve related problems in interviews. Keep practicing and happy coding!**
+**🎉 Congratulations! You now have complete mastery of searching in rotated sorted arrays, understand the sorted-half detection technique, and can confidently tackle rotation-based binary search problems. Keep practicing and happy coding!**
