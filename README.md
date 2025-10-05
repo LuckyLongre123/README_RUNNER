@@ -1,6 +1,6 @@
-# Day 16: 🎯 Remove Duplicates from Sorted Array - Complete Beginner's Guide
+# Day 17: 🔢 Count Primes - Complete Beginner's Guide
 
-> **Master the two-pointer technique and in-place array manipulation step by step!**
+> **Master the Sieve of Eratosthenes and efficient prime number algorithms step by step!**
 
 
 ---
@@ -8,10 +8,10 @@
 ## 📖 What You'll Learn
 
 By the end of this guide, you'll master:
-- 🔀 **Two-Pointer Technique** - How to use slow and fast pointers for efficient traversal
-- 📝 **In-Place Array Modification** - Changing arrays without using extra space
-- 🎯 **Sorted Array Optimization** - Leveraging the sorted property for O(n) solutions
-- 🧮 **Algorithm Design** - Understanding space-time tradeoffs
+- 🔢 **Prime Number Theory** - Understanding what makes numbers prime
+- 🎯 **Sieve of Eratosthenes** - Ancient yet efficient algorithm for finding primes
+- 🚀 **Algorithm Optimization** - Why starting from i² matters
+- 🧮 **Mathematical Efficiency** - Near-linear time complexity for prime counting
 
 ---
 
@@ -19,255 +19,230 @@ By the end of this guide, you'll master:
 
 ### 📋 Problem Statement
 
-**Given**: An integer array `nums` sorted in non-decreasing order  
-**Task**: Remove duplicates **in-place** so each unique element appears only once  
-**Return**: The number `k` of unique elements  
-**Catch**: You must modify the array in-place with O(1) extra memory
-
-**Important Rules**:
-- Modify the input array directly (no extra arrays allowed!)
-- First `k` elements should contain all unique values in order
-- Elements beyond index `k-1` don't matter (we ignore them)
+**Given**: An integer `n`  
+**Task**: Return the count of prime numbers that are strictly less than `n`  
+**Definition**: A prime number is a natural number greater than 1 with no positive divisors other than 1 and itself
 
 ### 🌟 Real-World Example
 
-Think of it like organizing a sorted bookshelf:
-- **[1,1,2,2,3]** → Keep first copy of each book, remove duplicates → **[1,2,3,_,_]**
-- **[0,0,1,1,1,2,2,3,3,4]** → Clean duplicates → **[0,1,2,3,4,_,_,_,_,_]**
-- The cleaned section is at the front, duplicates at the back don't matter
+Think of prime numbers as "building blocks" of all numbers:
+- **n = 10** → Primes: 2, 3, 5, 7 → **Count: 4**
+- **n = 20** → Primes: 2, 3, 5, 7, 11, 13, 17, 19 → **Count: 8**
+- **n = 2** → No primes less than 2 → **Count: 0**
 
 ---
 
 ## 🔍 Understanding the Basics
 
-### 🏗️ What is the Two-Pointer Technique?
+### 🏗️ What Are Prime Numbers?
 
 ```mermaid
 flowchart LR
-    A["Two-Pointer<br/>Technique"] --> B["Slow Pointer<br/>Write Position"]
-    A --> C["Fast Pointer<br/>Read Position"]
+    A[Prime Numbers] --> B[Greater than 1]
+    A --> C[Only divisible by<br/>1 and itself]
+    A --> D[Examples:<br/>2, 3, 5, 7, 11, 13]
     
     style A fill:#e1f5fe
     style B fill:#e8f5e8
     style C fill:#fff3e0
+    style D fill:#f3e5f5
 ```
 
-**Think of it like a relay race:**
-- **Slow pointer (i)**: Marks where to place the next unique element
-- **Fast pointer (j)**: Scans ahead to find unique elements
-- Both move through the array, but at different speeds
+**Key Properties:**
+- The number **2** is the only even prime
+- All other primes are odd numbers
+- Every number can be expressed as a product of primes (Fundamental Theorem of Arithmetic)
 
-### 🎲 How Sorted Arrays Help Us
-
-Since the array is sorted, all duplicates are next to each other:
+### 🎲 Naive vs. Efficient Approach
 
 ```mermaid
 flowchart TD
-    A["Sorted Array:<br/>1,1,2,2,2,3"] --> B["Duplicates are<br/>adjacent"]
-    B --> C["Just compare<br/>neighbors!"]
-    C --> D["If nums[i] != nums[j]<br/>Found unique element"]
+    A[Problem: Count primes < n] --> B{Which approach?}
+    B -->|Naive| C[Check each number<br/>O n√n]
+    B -->|Efficient| D[Sieve of Eratosthenes<br/>O n log log n]
+    
+    C --> E[Too slow for<br/>large n ❌]
+    D --> F[Fast enough for<br/>n up to millions ✅]
     
     style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#e8f5e8
-    style D fill:#c8e6c9
+    style C fill:#ffebee
+    style D fill:#e8f5e8
+    style E fill:#ff5252
+    style F fill:#4caf50
 ```
 
-**Key Insight:**
-- In `[1,1,2,2,3]`, all `1`s are together, all `2`s are together
-- We only need to check if `nums[i] != nums[j]` to find unique elements
-- No need to check the entire array!
+**Why Sieve is Better:**
+- Instead of testing divisibility, we eliminate multiples
+- Reuses work from smaller primes
+- Near-linear performance in practice
 
 ---
 
 ## 📚 Step-by-Step Examples
 
-### 🟢 Example 1: Simple Case
+### 🟢 Example 1: Small Number (n = 10)
 
-**Input:** `nums = [1,1,2]`  
-**Output:** `2, nums = [1,2,_]`
+**Input:** `n = 10`  
+**Output:** `4` (primes: 2, 3, 5, 7)
 
 ```mermaid
 flowchart TD
-    A["Start: 1,1,2<br/>i=0, j=1"] --> B{"nums[0]==nums[1]?"}
-    B -->|"YES: 1==1"| C["Skip duplicate<br/>j=2"]
-    C --> D{"nums[0]==nums[2]?"}
-    D -->|"NO: 1!=2"| E["Found unique!<br/>i++, nums[1]=2"]
-    E --> F["Result: 1,2,_<br/>Return 2"]
+    A[Start: Array 0-9<br/>All marked prime] --> B[Mark 0, 1 as not prime]
+    B --> C[i=2: Mark 4, 6, 8 as not prime]
+    C --> D[i=3: Mark 6, 9 as not prime<br/>6 already marked]
+    D --> E[i=4: Skip i*i=16 > 10]
+    E --> F[Count: 2, 3, 5, 7 = 4 ✅]
     
     style A fill:#e8f5e8
-    style E fill:#c8e6c9
-    style F fill:#4caf50
+    style F fill:#c8e6c9
 ```
 
-**Step-by-step breakdown:**
-1. **Start:** `i = 0, j = 1, nums = [1,1,2]`
-2. **Step 1:** Compare `nums[0]` with `nums[1]`
-   - `1 == 1` → Duplicate! Just move `j` forward
-   - Now: `i = 0, j = 2`
-3. **Step 2:** Compare `nums[0]` with `nums[2]`
-   - `1 != 2` → Found unique element!
-   - Move `i` forward: `i = 1`
-   - Copy unique element: `nums[1] = nums[2] = 2`
-   - Array becomes: `[1,2,2]`
-4. **Done:** `j` reached end, return `i + 1 = 2`
+**Step-by-step visualization:**
 
-### 🔴 Example 2: Multiple Duplicates
+| Index | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|-------|---|---|---|---|---|---|---|---|---|---|
+| Initial | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| After 0,1 | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| After 2 | ✗ | ✗ | ✓ | ✓ | ✗ | ✓ | ✗ | ✓ | ✗ | ✓ |
+| After 3 | ✗ | ✗ | ✓ | ✓ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ |
+| **Primes** | | | **2** | **3** | | **5** | | **7** | | |
 
-**Input:** `nums = [0,0,1,1,1,2,2,3,3,4]`  
-**Output:** `5, nums = [0,1,2,3,4,_,_,_,_,_]`
+### 🔴 Example 2: Edge Case (n = 2)
+
+**Input:** `n = 2`  
+**Output:** `0` (no primes less than 2)
 
 ```mermaid
 flowchart TD
-    A["Start: 0,0,1,1,1,2,2,3,3,4"] --> B["Skip duplicate 0<br/>i=0, j=2"]
-    B --> C["Found 1<br/>nums[1]=1, i=1"]
-    C --> D["Skip two 1s<br/>j=3,4,5"]
-    D --> E["Found 2<br/>nums[2]=2, i=2"]
-    E --> F["Skip duplicate 2<br/>j=6,7"]
-    F --> G["Found 3<br/>nums[3]=3, i=3"]
-    G --> H["Skip duplicate 3<br/>j=8,9"]
-    H --> I["Found 4<br/>nums[4]=4, i=4"]
-    I --> J["Final: 0,1,2,3,4<br/>Return 5"]
+    A[n = 2] --> B{Is n <= 2?}
+    B -->|Yes| C[Return 0 immediately]
+    C --> D[No primes less than 2 ✅]
     
     style A fill:#ffebee
-    style C fill:#fff3e0
-    style E fill:#fff3e0
-    style G fill:#fff3e0
-    style I fill:#fff3e0
-    style J fill:#ffcdd2
+    style C fill:#ffcdd2
+    style D fill:#ef9a9a
 ```
 
-**Detailed trace:**
-```
-Initial: [0,0,1,1,1,2,2,3,3,4], i=0, j=1
+**Why?**
+- By definition, primes are natural numbers **greater than 1**
+- Numbers 0 and 1 are not prime
+- So no primes exist less than 2
 
-j=1: nums[0]=0, nums[1]=0 → Same, continue
-j=2: nums[0]=0, nums[2]=1 → Different! i++, nums[1]=1
-     Array: [0,1,1,1,1,2,2,3,3,4], i=1
+### 🟡 Example 3: Medium Number (n = 20)
 
-j=3: nums[1]=1, nums[3]=1 → Same, continue
-j=4: nums[1]=1, nums[4]=1 → Same, continue
-j=5: nums[1]=1, nums[5]=2 → Different! i++, nums[2]=2
-     Array: [0,1,2,1,1,2,2,3,3,4], i=2
-
-j=6: nums[2]=2, nums[6]=2 → Same, continue
-j=7: nums[2]=2, nums[7]=3 → Different! i++, nums[3]=3
-     Array: [0,1,2,3,1,2,2,3,3,4], i=3
-
-j=8: nums[3]=3, nums[8]=3 → Same, continue
-j=9: nums[3]=3, nums[9]=4 → Different! i++, nums[4]=4
-     Array: [0,1,2,3,4,2,2,3,3,4], i=4
-
-j=10: End of array
-Return: i+1 = 5
-
-Final: [0,1,2,3,4,_,_,_,_,_]
-```
-
-### 🟡 Example 3: No Duplicates
-
-**Input:** `nums = [1,2,3,4,5]`  
-**Output:** `5, nums = [1,2,3,4,5]`
+**Input:** `n = 20`  
+**Output:** `8` (primes: 2, 3, 5, 7, 11, 13, 17, 19)
 
 ```mermaid
 flowchart TD
-    A["All elements<br/>are unique"] --> B["Every comparison<br/>nums[i] != nums[j]"]
-    B --> C["i increments<br/>every time"]
-    C --> D["Array stays<br/>unchanged"]
-    D --> E["Return 5"]
+    A[Start: n=20] --> B[Mark multiples of 2<br/>4,6,8,10,12,14,16,18]
+    B --> C[Mark multiples of 3<br/>9,15 new]
+    C --> D[i=5: 5*5=25 > 20<br/>Stop outer loop]
+    D --> E[Count remaining:<br/>2,3,5,7,11,13,17,19 = 8 ✅]
     
     style A fill:#fff8e1
-    style D fill:#ffecb3
-    style E fill:#ffb74d
+    style E fill:#ffecb3
 ```
 
-**Why it's fast:** When no duplicates exist, we still do O(n) work, but every element gets kept!
+**Key Insight:** We stop at i=5 because 5² = 25 > 20. All composites less than 20 have already been marked!
 
-### 🚨 Example 4: All Same Elements
+### 🚨 Example 4: Understanding Why We Start from i²
 
-**Input:** `nums = [7,7,7,7,7]`  
-**Output:** `1, nums = [7,_,_,_,_]`
+**Why mark from i² instead of 2i?**
 
 ```mermaid
-flowchart TD
-    A["Start: 7,7,7,7,7<br/>i=0"] --> B["All comparisons<br/>nums[0] == nums[j]"]
-    B --> C["i never moves<br/>stays at 0"]
-    C --> D["Only first element<br/>is kept"]
-    D --> E["Return 1"]
+flowchart LR
+    A[When i=5] --> B[5*2=10<br/>Already marked by 2]
+    A --> C[5*3=15<br/>Already marked by 3]
+    A --> D[5*4=20<br/>Already marked by 2]
+    A --> E[5*5=25<br/>First NEW composite!]
     
     style A fill:#e1f5fe
+    style B fill:#ffebee
     style C fill:#ffebee
-    style E fill:#ef5350
+    style D fill:#ffebee
+    style E fill:#e8f5e8
 ```
 
-**Worst case for duplicates:** But still O(n) time - we scan everything once!
+**The Math:**
+- For any composite 5×k where k < 5
+- That number was already marked when we processed k
+- So we can start directly from 5² = 25!
 
 ---
 
 ## 🛠️ The Algorithm
 
-### 🎯 Main Strategy: Two Pointers
+### 🎯 Main Strategy: Sieve of Eratosthenes
 
 ```mermaid
 flowchart TD
-    A["Initialize i=0<br/>slow pointer"] --> B{"Is j < array length?"}
-    B -->|No| G["Return i+1<br/>count of unique"]
-    B -->|Yes| C{"nums[i] != nums[j]?"}
-    C -->|Yes| D["Increment i<br/>Copy nums[j] to nums[i]"]
-    C -->|No| E["Skip duplicate"]
-    D --> F["Move j forward"]
-    E --> F
-    F --> B
+    A[Create boolean array<br/>size n, all true] --> B[Mark 0 and 1 as false]
+    B --> C{i from 2 to √n}
+    C -->|i < √n| D{isPrime i ?}
+    D -->|Yes| E[Mark all multiples of i<br/>starting from i² as false]
+    E --> C
+    D -->|No| C
+    C -->|i >= √n| F[Count all true values<br/>from 2 to n-1]
+    F --> G[Return count]
     
     style A fill:#e8f5e8
-    style C fill:#fff3e0
-    style D fill:#c8e6c9
-    style G fill:#4caf50
+    style E fill:#fff3e0
+    style G fill:#c8e6c9
 ```
 
 ### 💻 The Code
 
 ```cpp
-int removeDuplicates(vector<int>& nums) {
-    // 🚨 EDGE CASE: Empty array
-    if (nums.empty()) return 0;
+int countPrimes(int n) {
+    if (n <= 2) return 0;
     
-    int i = 0;  // Slow pointer - tracks last unique position
+    // Create sieve array
+    vector<bool> isPrime(n, true);
+    isPrime[0] = isPrime[1] = false;
     
-    // 🔄 SCAN: Fast pointer j scans from index 1
-    for (int j = 1; j < nums.size(); j++) {
-        // 🔍 COMPARE: Is this a new unique element?
-        if (nums[i] != nums[j]) {
-            i++;              // ➡️ Move to next write position
-            nums[i] = nums[j]; // 📝 Write the unique element
+    // Mark composites
+    for (int i = 2; i * i < n; ++i) {
+        if (isPrime[i]) {
+            // Start from i² and mark multiples
+            for (int j = i * i; j < n; j += i) {
+                isPrime[j] = false;
+            }
         }
-        // If same, j just continues (skip duplicate)
     }
     
-    // ✅ RESULT: Return count (i is 0-indexed, so add 1)
-    return i + 1;
+    // Count primes
+    int count = 0;
+    for (int i = 2; i < n; ++i) {
+        if (isPrime[i]) count++;
+    }
+    
+    return count;
 }
 ```
 
-### 🛡️ Why This Works
+### 🛡️ Why Only Check Up to √n?
 
-**The Array Invariant:**
+**Mathematical Proof:**
 
 ```mermaid
-flowchart LR
-    A["Array Structure"] --> B["0 to i:<br/>Unique Elements"]
-    A --> C["i+1 to j-1:<br/>Duplicates/Processed"]
-    A --> D["j to end:<br/>Unprocessed"]
+flowchart TD
+    A[Any composite number n] --> B[n = a × b]
+    B --> C{Both a and b > √n ?}
+    C -->|If YES| D[Then a × b > n<br/>Contradiction! ❌]
+    C -->|So NO| E[At least one factor ≤ √n ✅]
+    E --> F[Therefore: Check only up to √n]
     
-    style B fill:#c8e6c9
-    style C fill:#ffcdd2
-    style D fill:#fff3e0
+    style A fill:#ffebee
+    style D fill:#ff5252
+    style E fill:#4caf50
+    style F fill:#81c784
 ```
 
-**At any point during execution:**
-- `nums[0...i]` contains all unique elements found so far
-- `nums[i+1...j-1]` contains duplicates or processed elements (we don't care)
-- `nums[j...n-1]` contains unprocessed elements
+**The Logic:**
+- If n = a × b and both a, b > √n
+- Then a × b > √n × √n = n (impossible!)
+- So at least one factor must be ≤ √n
 
 ---
 
@@ -275,136 +250,177 @@ flowchart LR
 
 ### ✅ Normal Cases
 
-| Input | Output | Why |
-|-------|--------|-----|
-| `[1,1,2]` | `2` | Basic case with one duplicate pair |
-| `[0,0,1,1,1,2,2,3,3,4]` | `5` | Multiple duplicates of different lengths |
-| `[1,2,3,4,5]` | `5` | No duplicates - all unique |
+| Input | Output | Primes |
+|-------|--------|--------|
+| `10` | `4` | 2, 3, 5, 7 |
+| `20` | `8` | 2, 3, 5, 7, 11, 13, 17, 19 |
+| `100` | `25` | 25 primes less than 100 |
 
 ### ⚠️ Edge Cases
 
 | Input | Output | Why |
 |-------|--------|-----|
-| `[]` | `0` | Empty array |
-| `[1]` | `1` | Single element |
-| `[1,1]` | `1` | Two same elements |
-| `[7,7,7,7,7]` | `1` | All elements identical |
+| `0` | `0` | No numbers to check |
+| `1` | `0` | No primes less than 1 |
+| `2` | `0` | No primes less than 2 |
+| `3` | `1` | Only prime 2 |
 
 ### 🎯 Boundary Testing
 
 ```mermaid
 flowchart TD
-    A["Test Categories"] --> B["Normal Arrays<br/>✅ Mixed duplicates"]
-    A --> C["Edge Cases<br/>⚠️ Special sizes"]
-    A --> D["Performance<br/>🚀 Large inputs"]
+    A[Test Categories] --> B[Edge Cases<br/>⚠️ n ≤ 2]
+    A --> C[Small Numbers<br/>✅ n < 100]
+    A --> D[Large Numbers<br/>🚀 n ≥ 1000]
     
-    B --> B1["1,1,2 → 2"]
-    B --> B2["0,0,1,1,1,2,2,3,3,4 → 5"]
+    B --> B1[n=0 → 0]
+    B --> B2[n=1 → 0]
+    B --> B3[n=2 → 0]
     
-    C --> C1["Empty → 0"]
-    C --> C2["Single → 1"]
-    C --> C3["All same → 1"]
+    C --> C1[n=10 → 4]
+    C --> C2[n=20 → 8]
+    C --> C3[n=50 → 15]
     
-    D --> D1["10000 elements"]
-    D --> D2["All unique"]
-    D --> D3["All duplicates"]
+    D --> D1[n=1000 → 168]
+    D --> D2[n=5000 → 669]
+    D --> D3[n=10000 → 1229]
     
-    style B fill:#e8f5e8
-    style C fill:#fff3e0
-    style D fill:#e1f5fe
+    style B fill:#ffebee
+    style C fill:#e8f5e8
+    style D fill:#e3f2fd
 ```
 
 ---
 
 ## 🎓 Key Concepts Mastery
 
-### 🔀 Two-Pointer Technique
+### 🔢 Prime Number Properties
 
-**When to use:**
+**1. Fundamental Properties:**
 ```cpp
-// Use two pointers when you need to:
-// 1. Partition array into sections
-// 2. Process sorted arrays efficiently
-// 3. Avoid using extra space
+// Only 2 is even and prime
+bool isEvenPrime = (n == 2);
+
+// All primes > 2 are odd
+// But not all odd numbers are prime!
 ```
 
-**The Pattern:**
+**2. Prime Density:**
 ```cpp
-int slowPointer = 0;  // Write position
-for (int fastPointer = 0; fastPointer < n; fastPointer++) {
-    if (condition) {
-        // Move slow pointer and process
-        array[slowPointer++] = array[fastPointer];
+// Prime Number Theorem: 
+// Number of primes ≤ n ≈ n / ln(n)
+// Example: For n=1000000, expect ~72,382 primes
+```
+
+**3. Testing Primality:**
+```cpp
+// To test if n is prime, check divisors up to √n
+bool isPrime(int n) {
+    if (n <= 1) return false;
+    if (n <= 3) return true;
+    if (n % 2 == 0 || n % 3 == 0) return false;
+    for (int i = 5; i * i <= n; i += 6) {
+        if (n % i == 0 || n % (i + 2) == 0)
+            return false;
     }
+    return true;
 }
 ```
 
-### 📝 In-Place Modification Pattern
+### ⚠️ Sieve Optimization Techniques
 
 ```mermaid
 flowchart LR
-    A["Original Array"] --> B["Read from<br/>fast pointer"]
-    B --> C["Write to<br/>slow pointer"]
-    C --> D["Modified Array<br/>Same memory"]
+    A[Basic Sieve] --> B[Start from 2i]
+    B --> C[Optimized Sieve<br/>Start from i²]
+    C --> D[Segmented Sieve<br/>For very large n]
+    D --> E[Wheel Factorization<br/>Skip even/multiple of 3]
     
     style A fill:#e3f2fd
-    style B fill:#fff3e0
-    style C fill:#e8f5e8
-    style D fill:#c8e6c9
+    style C fill:#fff3e0
+    style E fill:#e8f5e8
 ```
 
-**Benefits:**
-- O(1) space complexity
-- No memory allocation overhead
-- Cache-friendly access patterns
+**Key Optimizations:**
+1. **Start from i²**: Smaller multiples already marked
+2. **Only check to √n**: Mathematical guarantee
+3. **Skip even numbers**: Only 2 is even prime
+4. **Use bit array**: Reduce space by 8x
 
-### 🎯 Problem-Solving Framework
+### 🎯 Algorithm Comparison
 
 ```mermaid
 flowchart TD
-    A["Identify Constraints"] --> B["Sorted? In-place?"]
-    B --> C["Choose Two-Pointer<br/>Technique"]
-    C --> D["Define Slow/Fast<br/>Pointer Roles"]
-    D --> E["Implement and Test"]
+    A[Prime Counting Methods] --> B[Trial Division<br/>O n√n]
+    A --> C[Sieve of Eratosthenes<br/>O n log log n]
+    A --> D[Segmented Sieve<br/>O n log log n, better space]
+    A --> E[Atkin's Sieve<br/>O n / log log n]
+    
+    B --> B1[Simple but slow]
+    C --> C1[Best for most cases ✅]
+    D --> D1[Best for huge n]
+    E --> E1[Complex, rarely needed]
     
     style A fill:#e1f5fe
-    style B fill:#f3e5f5
     style C fill:#e8f5e8
-    style D fill:#fff3e0
-    style E fill:#c8e6c9
+    style C1 fill:#4caf50
 ```
 
 ---
 
 ## 📊 Complexity Analysis
 
-### ⏰ Time Complexity: O(n)
+### ⏰ Time Complexity: O(n log log n)
 
-**Why linear?**
-- We scan through each element exactly once with the fast pointer
-- Each iteration does O(1) work (comparison and possibly assignment)
-- Total: n iterations × O(1) = O(n)
+**Why this complexity?**
+- Outer loop: runs up to √n iterations
+- Inner loop: for prime p, marks n/p multiples
+- Total operations: n/2 + n/3 + n/5 + n/7 + ... = n(1/2 + 1/3 + 1/5 + ...)
+- This sum equals O(n log log n) by prime harmonic series
 
 ```mermaid
 flowchart TD
-    A["Input Size"] --> B["1 element: 1 operation"]
-    A --> C["10 elements: 10 operations"]
-    A --> D["1000 elements: 1000 operations"]
-    A --> E["Linear relationship<br/>T(n) = c × n"]
+    A[Operations for each prime p] --> B[Mark n/p multiples]
+    B --> C[p=2: n/2 ops]
+    B --> D[p=3: n/3 ops]
+    B --> E[p=5: n/5 ops]
+    B --> F[p=7: n/7 ops]
+    
+    C --> G[Total: n 1/2+1/3+1/5+...]
+    D --> G
+    E --> G
+    F --> G
+    
+    G --> H[= O n log log n]
     
     style A fill:#e3f2fd
-    style B fill:#e8f5e8
-    style C fill:#e8f5e8
-    style D fill:#e8f5e8
-    style E fill:#fff3e0
+    style H fill:#4caf50
 ```
 
-### 💾 Space Complexity: O(1)
+**Comparison:**
+| Algorithm | Time Complexity | Notes |
+|-----------|----------------|-------|
+| Trial Division | O(n√n) | Too slow |
+| Sieve of Eratosthenes | O(n log log n) | Best for most cases |
+| Segmented Sieve | O(n log log n) | Better space |
 
-**Why constant space?**
-- Only use two integer variables: `i` and `j`
-- No arrays, lists, or recursive calls
-- Memory usage doesn't grow with input size
+### 💾 Space Complexity: O(n)
+
+**Why linear space?**
+- Need boolean array of size n
+- Each element: 1 bit (optimized) or 1 byte (simple)
+- Total: n bits or n bytes
+
+**Space Optimization:**
+```cpp
+// Standard: O(n) bytes
+vector<bool> isPrime(n);
+
+// Optimized: O(n/8) bytes using bitset
+bitset<10000000> isPrime;
+
+// Segmented: O(√n) by processing chunks
+```
 
 ---
 
@@ -414,346 +430,342 @@ Once you master this, try these similar problems:
 
 | Problem | Difficulty | Key Concept |
 |---------|------------|-------------|
-| 🔢 Remove Element (LeetCode 27) | Easy | Same two-pointer pattern |
-| 🧮 Move Zeroes (LeetCode 283) | Easy | Partition with two pointers |
-| 💫 Remove Duplicates II (LeetCode 80) | Medium | Allow k duplicates |
-| 🔄 Sort Colors (LeetCode 75) | Medium | Dutch flag problem |
+| 🔢 Prime Number of Set Bits | Easy | Prime + Bit manipulation |
+| 🧮 Ugly Number II | Medium | Prime factorization |
+| 💫 Count Primes in Ranges | Hard | Segmented sieve |
+| 🔄 Nth Prime Number | Medium | Sieve application |
 
 ---
 
 ## 💼 Interview Questions & Answers
 
-### ❓ Question 1: Why do we need the sorted array constraint?
+### ❓ Question 1: Why is the Sieve of Eratosthenes efficient?
 
 **Answer:**  
-The sorted property guarantees all duplicates are adjacent. This means:
-- We only need to compare neighbors: `nums[i]` vs `nums[j]`
-- No need to check the entire array for duplicates
-- Enables O(n) solution with one pass
+The Sieve is efficient because it eliminates multiples rather than testing divisibility:
+- Instead of testing each number (expensive), we mark composites (cheap)
+- Reuses information: if we know 2 is prime, we can mark all even numbers
+- Works in one pass through the array
 
 **Simple Explanation:**  
-It's like organizing books by title. All copies of "Harry Potter" are next to each other, so you can easily spot and remove duplicates by just looking at neighbors!
+It's like finding weeds in a garden. Instead of inspecting each plant individually, you spray herbicide that kills all weeds at once. Much faster!
 
-**Without sorting:**
+---
+
+### ❓ Question 2: Why do we start marking from i² instead of 2i?
+
+**Answer:**  
+All multiples of i less than i² have already been marked by smaller primes.
+
+**Proof by example (i=5):**
+- 5×2 = 10 (already marked when we processed 2)
+- 5×3 = 15 (already marked when we processed 3)
+- 5×4 = 20 (already marked when we processed 2, since 4=2×2)
+- 5×5 = 25 (first NEW composite!)
+
+**Simple Explanation:**  
+If you're cleaning multiples of 5, the numbers 10, 15, 20 were already cleaned when you did 2 and 3. Start fresh from 25!
+
+---
+
+### ❓ Question 3: Why only check up to √n?
+
+**Answer:**  
+Any composite number n must have at least one factor ≤ √n.
+
+**Mathematical Proof:**
+- Assume n = a × b where both a, b > √n
+- Then a × b > √n × √n = n (contradiction!)
+- Therefore, at least one factor must be ≤ √n
+
+**Simple Explanation:**  
+Factors come in pairs. If one is big (>√n), the other must be small (≤√n). So checking small factors is enough!
+
+**Code Example:**
 ```cpp
-// Unsorted: [1,3,2,1,4] - need O(n²) or extra space to find duplicates
-// Sorted: [1,1,2,3,4] - O(n) with two pointers!
+// For n = 100, only check up to 10
+for (int i = 2; i * i < 100; ++i) {
+    // i goes: 2, 3, 4, 5, 6, 7, 8, 9, 10
+    // Checks all necessary factors
+}
 ```
 
 ---
 
-### ❓ Question 2: What if the array was NOT sorted?
+### ❓ Question 4: What's the time complexity and how is it derived?
 
 **Answer:**  
-We'd need a different approach:
+**Time: O(n log log n)**
 
-**Option 1: Sort first (O(n log n))**
-```cpp
-sort(nums.begin(), nums.end());  // O(n log n)
-return removeDuplicates(nums);    // O(n)
-// Total: O(n log n)
+**Derivation:**
+```
+Operations = n/2 + n/3 + n/5 + n/7 + n/11 + ...
+           = n × (1/2 + 1/3 + 1/5 + 1/7 + ...)
+           = n × (sum of reciprocals of primes up to n)
+           = n × O(log log n)  [by Mertens' theorem]
 ```
 
-**Option 2: Use HashSet (O(n) time, O(k) space)**
+**Simple Explanation:**  
+It's almost linear! The log log n part is so tiny:
+- log log 1000 ≈ 2.6
+- log log 1,000,000 ≈ 3.9
+- log log 1,000,000,000 ≈ 5.1
+
+So for practical purposes, it's nearly O(n)!
+
+**Space: O(n)** - One boolean per number
+
+---
+
+### ❓ Question 5: Can we do better than O(n) space?
+
+**Answer:**  
+Yes! Use a **Segmented Sieve** for O(√n) space:
+
+**Approach:**
+1. Find all primes up to √n using regular sieve: O(√n) space
+2. Process range [√n, n] in segments of size √n
+3. For each segment, mark composites using primes from step 1
+
+**Simple Explanation:**  
+Instead of one huge array, use a small array and process the range in chunks. Like washing a big floor with a small bucket - you do sections at a time!
+
+**Space Comparison:**
+```
+Regular Sieve:     O(n) space
+Segmented Sieve:   O(√n) space
+For n=1,000,000:   1MB vs 1KB savings!
+```
+
+---
+
+### ❓ Question 6: How does this compare to checking each number individually?
+
+**Answer:**  
+**Naive approach:** Check if each number from 2 to n-1 is prime
+
 ```cpp
-unordered_set<int> seen;
-int writeIndex = 0;
-for (int num : nums) {
-    if (seen.find(num) == seen.end()) {
-        seen.insert(num);
-        nums[writeIndex++] = num;
+// Naive: O(n√n) time
+int countPrimes(int n) {
+    int count = 0;
+    for (int i = 2; i < n; ++i) {
+        if (isPrime(i)) count++;  // O(√i) per check
     }
-}
-return writeIndex;
-```
-
-**Simple Explanation:**  
-Without sorting, we need extra memory to remember which numbers we've seen. It's like keeping a checklist!
-
----
-
-### ❓ Question 3: Why do we start `j` from index 1, not 0?
-
-**Answer:**  
-Because `nums[0]` is always unique (it's the first element)!
-
-**Logic:**
-```cpp
-i = 0;  // First element is always kept
-j = 1;  // Start comparing from second element
-
-// If j started at 0:
-if (nums[0] != nums[0])  // Always false! Wastes a comparison
-```
-
-**Simple Explanation:**  
-The first book on your shelf is always there - no need to check if it's a duplicate of itself!
-
----
-
-### ❓ Question 4: What's the difference between this and Remove Element (LeetCode 27)?
-
-**Answer:**  
-Very similar pattern, different condition!
-
-**Remove Duplicates:**
-```cpp
-if (nums[i] != nums[j])  // Keep if different from previous
-    nums[++i] = nums[j];
-```
-
-**Remove Element (remove value `val`):**
-```cpp
-if (nums[j] != val)  // Keep if not equal to target value
-    nums[i++] = nums[j];
-```
-
-**Simple Explanation:**  
-Same tool (two pointers), different job. One removes duplicates, the other removes a specific value.
-
----
-
-### ❓ Question 5: How do you handle empty arrays or single elements?
-
-**Answer:**  
-```cpp
-if (nums.empty()) return 0;   // No elements → return 0
-
-// Single element: loop never runs (j starts at 1, condition j < 1 is false)
-// Returns i + 1 = 0 + 1 = 1 automatically ✅
-```
-
-**Simple Explanation:**  
-Empty array has 0 unique elements. Single element is automatically unique - no work needed!
-
----
-
-### ❓ Question 6: Can we optimize this further?
-
-**Answer:**  
-The algorithm is already **asymptotically optimal** - O(n) time is the best possible because:
-1. Must examine each element at least once: Ω(n)
-2. Our algorithm examines each element exactly once: O(n)
-3. Therefore, it's optimal: Θ(n)
-
-**Micro-optimizations possible:**
-```cpp
-if (++i != j) {  // Avoid self-assignment
-    nums[i] = nums[j];
+    return count;
 }
 ```
 
+**Time Comparison:**
+```
+n = 100:
+- Naive: ~1,000 operations
+- Sieve: ~100 operations (10x faster!)
+
+n = 1,000,000:
+- Naive: ~1,000,000,000 operations
+- Sieve: ~20,000,000 operations (50x faster!)
+```
+
 **Simple Explanation:**  
-You can't clean a bookshelf without looking at every book at least once. We're already doing the minimum work!
+Naive is like knocking on every door to ask "are you prime?"  
+Sieve is like sending one message that marks all non-primes. Much smarter!
 
 ---
 
-### ❓ Question 7: What if we need to count how many duplicates were removed?
+### ❓ Question 7: What if n is very large (e.g., 10⁹)?
 
 **Answer:**  
-```cpp
-int removeDuplicates(vector<int>& nums) {
-    if (nums.empty()) return 0;
-    
-    int i = 0, duplicatesRemoved = 0;
-    
-    for (int j = 1; j < nums.size(); j++) {
-        if (nums[i] != nums[j]) {
-            nums[++i] = nums[j];
-        } else {
-            duplicatesRemoved++;  // Count skipped elements
-        }
-    }
-    
-    cout << "Removed " << duplicatesRemoved << " duplicates\n";
-    return i + 1;
-}
-```
+For extremely large n, use these techniques:
+
+**1. Segmented Sieve:**
+- Space: O(√n) instead of O(n)
+- Process range in chunks
+
+**2. Parallel Sieve:**
+- Mark different ranges on different CPU cores
+- Near-linear speedup with cores
+
+**3. Bit Packing:**
+- Use 1 bit per number instead of 1 byte
+- 8x space reduction
+
+**4. Skip Evens:**
+- Only store odd numbers
+- 2x space reduction
 
 **Simple Explanation:**  
-Just count how many times we skip an element (when `nums[i] == nums[j]`).
+It's like organizing a huge library:
+- Segmented: Process one shelf at a time
+- Parallel: Multiple librarians working together
+- Bit packing: Compress book labels
+- Skip evens: Only catalog odd-numbered books
 
 ---
 
-### ❓ Question 8: Why is this called "in-place" modification?
+### ❓ Question 8: Why is 2 the only even prime?
 
 **Answer:**  
-"In-place" means we modify the original array without creating a new one.
+**By definition:** All even numbers greater than 2 are divisible by 2, so they have a divisor other than 1 and themselves.
 
-**NOT in-place (uses extra space):**
-```cpp
-vector<int> result;  // New array - O(k) space
-for (int i = 0; i < nums.size(); i++) {
-    if (condition) result.push_back(nums[i]);
-}
-```
-
-**In-place (O(1) space):**
-```cpp
-// Modify nums directly - no new array
-nums[i] = nums[j];
-```
+**Proof:**
+- 2 is prime (only divisors: 1, 2)
+- 4 = 2×2 (divisible by 2, not prime)
+- 6 = 2×3 (divisible by 2, not prime)
+- Any even n = 2×k where k ≥ 2 (not prime)
 
 **Simple Explanation:**  
-It's like rearranging books on the same shelf vs. getting a new shelf. We save memory by reusing the original space!
+By definition, even means "divisible by 2". If a number > 2 is divisible by 2, it has 2 as a factor, so it's not prime!
+
+This is why many optimizations skip even numbers entirely.
 
 ---
 
-### ❓ Question 9: What happens to elements after index `i`?
+### ❓ Question 9: What's the difference between Sieve of Eratosthenes and Sieve of Atkin?
 
 **Answer:**  
-They're **undefined** / "garbage" values that we ignore.
+**Sieve of Eratosthenes:**
+- Time: O(n log log n)
+- Simple to implement
+- Best for most practical use cases
 
-**Example:**
-```cpp
-Input:  [1,1,2,2,3]
-After:  [1,2,3,2,3]  → Return 3
-         ↑ ↑ ↑ ↑ ↑
-       unique garbage
-```
+**Sieve of Atkin:**
+- Time: O(n / log log n) - theoretically faster
+- Much more complex to implement
+- Uses quadratic forms and modular arithmetic
 
-**The judge only checks:** `nums[0...i]` (first `i+1` elements)
+**Practical Reality:**
+- Atkin is faster only for n > 10¹⁰
+- Eratosthenes has better cache performance
+- For coding interviews: always use Eratosthenes!
 
 **Simple Explanation:**  
-It's like cleaning the front part of your shelf. The back still has duplicates, but we tell people "only look at the first 3 books."
+Eratosthenes is like using a simple, reliable car.  
+Atkin is like using a Formula 1 race car - faster on paper, but needs expert handling and only worth it for very long distances.
 
 ---
 
-### ❓ Question 10: How would you test this function thoroughly?
+### ❓ Question 10: How do you handle the case where n ≤ 2?
 
 **Answer:**  
-Create test cases covering all scenarios:
-
+**Edge case handling:**
 ```cpp
-void testRemoveDuplicates() {
-    Solution sol;
-    
-    // Normal cases
-    vector<int> test1 = {1,1,2};
-    assert(sol.removeDuplicates(test1) == 2);
-    
-    // Edge cases
-    vector<int> test2 = {};
-    assert(sol.removeDuplicates(test2) == 0);
-    
-    vector<int> test3 = {1};
-    assert(sol.removeDuplicates(test3) == 1);
-    
-    // All same
-    vector<int> test4 = {7,7,7,7,7};
-    assert(sol.removeDuplicates(test4) == 1);
-    
-    // All unique
-    vector<int> test5 = {1,2,3,4,5};
-    assert(sol.removeDuplicates(test5) == 5);
-    
-    // Performance test
-    vector<int> test6(30000, 1);  // 30000 same elements
-    assert(sol.removeDuplicates(test6) == 1);
-    
-    cout << "All tests passed!" << endl;
-}
+if (n <= 2) return 0;
 ```
 
+**Reasoning:**
+- n = 0: No numbers to check → 0 primes
+- n = 1: Only number 0 exists, not prime → 0 primes
+- n = 2: Only numbers 0, 1 exist, both not prime → 0 primes
+
 **Simple Explanation:**  
-Test the extremes: empty, single element, all same, all different, and large inputs. If it works for all these, it's solid!
+Primes start at 2. If we're looking for primes *less than* 2, there are none!
+
+**Why this matters:**
+- Prevents array allocation for negative/zero size
+- Avoids unnecessary computation
+- Returns correct answer immediately
 
 ---
 
 ### 🎯 Common Interview Follow-ups
 
-**Q: "Can you optimize this further?"**  
-A: The algorithm is already optimal - O(n) time and O(1) space. Can't do better asymptotically!
+**Q: "Can you optimize space further?"**  
+A: Yes! Use bitset (1 bit per number) or only store odd numbers (2x reduction).
 
-**Q: "What if we allow k duplicates instead of removing all?"**  
-A: That's LeetCode 80 - slight modification to keep track of count per element.
+**Q: "What if we need primes in a range [L, R] instead of [0, n]?"**  
+A: Use segmented sieve: find primes up to √R, then mark composites in [L, R].
 
-**Q: "How would you test this function?"**  
-A: Test cases should include:
-- Normal cases: `[1,1,2]`, `[0,0,1,1,1,2,2,3,3,4]`
-- Edge cases: `[]`, `[1]`, `[1,1]`
-- All same: `[7,7,7,7,7]`
-- All unique: `[1,2,3,4,5]`
-- Performance: Large arrays (30000 elements)
+**Q: "How would you find the nth prime number?"**  
+A: Run sieve up to an estimated upper bound (n × ln n × 1.3), then count to nth prime.
+
+**Q: "Can this algorithm be parallelized?"**  
+A: Yes! Different segments can be processed on different cores. Nearly linear speedup.
 
 ---
 
 ## 🎯 Quick Reference
 
-### 🔑 Essential Code Patterns
+### 🔑 Essential Code Pattern
 
 ```cpp
-// Two-pointer pattern for removing duplicates
-int i = 0;  // Slow pointer - write position
-for (int j = 1; j < nums.size(); j++) {  // Fast pointer - read position
-    if (nums[i] != nums[j]) {
-        nums[++i] = nums[j];  // Found unique, copy it
+// Sieve of Eratosthenes template
+int countPrimes(int n) {
+    if (n <= 2) return 0;
+    
+    vector<bool> isPrime(n, true);
+    isPrime[0] = isPrime[1] = false;
+    
+    for (int i = 2; i * i < n; ++i) {
+        if (isPrime[i]) {
+            for (int j = i * i; j < n; j += i) {
+                isPrime[j] = false;
+            }
+        }
     }
+    
+    int count = 0;
+    for (int i = 2; i < n; ++i) {
+        if (isPrime[i]) count++;
+    }
+    return count;
 }
-return i + 1;  // Count of unique elements
-
-// Check for empty array
-if (nums.empty()) return 0;
-
-// The array invariant maintained throughout
-// [0...i]: unique elements
-// [i+1...j-1]: duplicates/processed
-// [j...n-1]: unprocessed
 ```
 
-### 📝 Important Points
+### 📝 Important Facts
 
 ```cpp
-// Key facts to remember:
-// 1. Array must be sorted for O(n) solution
-// 2. Duplicates are always adjacent in sorted array
-// 3. First element is always unique (no comparison needed)
-// 4. Return value is count of unique elements (i+1)
-// 5. Elements after index i are garbage (don't matter)
+// First 10 primes
+int firstPrimes[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
+
+// Prime counting function approximation
+// π(n) ≈ n / ln(n)  [Prime Number Theorem]
+
+// Time complexity
+// Sieve: O(n log log n)
+// Naive: O(n√n)
 ```
 
 ### 🧠 Mental Model
 
 ```mermaid
 flowchart TD
-    A["Think of array as<br/>sorted bookshelf"] --> B["Slow pointer marks<br/>where to place next unique book"]
-    B --> C["Fast pointer scans<br/>to find unique books"]
-    C --> D["Copy unique books<br/>to front section"]
-    D --> E["Ignore duplicates<br/>at the back"]
+    A[Think of sieve as<br/>crossing out composites] --> B[Start with all numbers<br/>marked as potential primes]
+    B --> C[For each prime found<br/>cross out its multiples]
+    C --> D[What remains uncrossed<br/>are the primes!]
     
     style A fill:#e1f5fe
     style B fill:#f3e5f5
     style C fill:#e8f5e8
     style D fill:#fff3e0
-    style E fill:#ffcdd2
 ```
 
 ---
 
 ## 🏆 Mastery Checklist
 
-- [ ] ✅ Understand the two-pointer technique (slow and fast pointers)
-- [ ] ✅ Know how to leverage sorted array property
-- [ ] ✅ Master in-place array modification
-- [ ] ✅ Handle edge cases (empty, single element, all same)
-- [ ] ✅ Explain why algorithm is O(n) time and O(1) space
-- [ ] ✅ Solve the problem without looking at solution
-- [ ] ✅ Code it from scratch in under 5 minutes
-- [ ] ✅ Answer all interview questions confidently
-- [ ] ✅ Apply pattern to similar problems (LeetCode 27, 80, 283)
+- [ ] ✅ Understand what makes a number prime
+- [ ] ✅ Know why naive approach is slow (O(n√n))
+- [ ] ✅ Master Sieve of Eratosthenes algorithm
+- [ ] ✅ Understand why we start marking from i²
+- [ ] ✅ Know why we only check up to √n
+- [ ] ✅ Grasp the O(n log log n) complexity
+- [ ] ✅ Handle edge cases (n ≤ 2)
+- [ ] ✅ Explain optimization techniques
+- [ ] ✅ Test with various input sizes
+- [ ] ✅ Answer interview questions confidently
 
 ---
 
 ## 💡 Pro Tips
 
-1. **🛡️ Edge Cases First**: Always check for empty array before processing
-2. **🔢 Start Fast Pointer at 1**: First element is always unique, no need to compare with itself
-3. **🧪 Test Extremes**: Empty, single, all same, all unique - cover all scenarios
-4. **📚 Learn the Pattern**: This two-pointer pattern appears in many array problems
-5. **🎯 Visualize**: Draw out the array state at each step for better understanding
-6. **💼 Practice Explaining**: Be ready to explain your logic clearly in interviews
-7. **🚀 Know Alternatives**: Understand HashSet and STL unique() approaches for comparison
+1. **🛡️ Start from i²**: Crucial optimization that reduces redundant operations
+2. **🔢 Check to √n**: Mathematical guarantee eliminates half the iterations
+3. **🧪 Test Edge Cases**: Always test n ≤ 2, small numbers, and large numbers
+4. **📚 Know the Theory**: Understand prime number theorem and complexity derivation
+5. **🎯 Visualize the Process**: Draw arrays and mark composites to understand flow
+6. **💼 Practice Variations**: Segmented sieve, prime ranges, nth prime problems
+7. **🚀 Understand Tradeoffs**: Space vs time, simplicity vs optimization
 
 ---
 
-**🎉 Congratulations! You now have a complete understanding of the two-pointer technique, in-place array modification, and can confidently answer interview questions. Keep practicing and happy coding!**
+**🎉 Congratulations! You now have a complete understanding of the Sieve of Eratosthenes, prime counting algorithms, and can confidently solve related problems in interviews. Keep practicing and happy coding!**
