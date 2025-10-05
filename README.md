@@ -1,6 +1,6 @@
-# Day 19: 🏔️ Peak Index in Mountain Array - Complete Beginner's Guide
+# Day 20: 🔢 Fibonacci Number - Complete Beginner's Guide
 
-> **Master binary search on mountain arrays step by step!**
+> **Master Dynamic Programming fundamentals step by step!**
 
 
 ---
@@ -8,10 +8,10 @@
 ## 📖 What You'll Learn
 
 By the end of this guide, you'll master:
-- 🔍 **Binary Search Applications** - How to adapt binary search to non-standard arrays
-- ⛰️ **Mountain Array Properties** - Understanding unimodal functions
-- 🎯 **Search Space Reduction** - Efficiently narrowing down possibilities
-- 🧮 **Comparison Logic** - Using neighbor comparisons to guide decisions
+- 🧮 **Dynamic Programming Basics** - Understanding how to break problems into subproblems
+- 🔄 **Space Optimization** - Reducing O(n) space to O(1) with rolling windows
+- 📊 **Recurrence Relations** - Building solutions from mathematical patterns
+- ⚡ **Iterative vs Recursive** - Comparing different solution approaches
 
 ---
 
@@ -19,247 +19,229 @@ By the end of this guide, you'll master:
 
 ### 📋 Problem Statement
 
-**Given**: An integer array `arr` that is guaranteed to be a mountain array  
-**Task**: Return the index of the peak element  
-**Mountain Array Definition**: 
-- Length ≥ 3
-- There exists an index `i` where:
-  - `arr[0] < arr[1] < ... < arr[i-1] < arr[i]`
-  - `arr[i] > arr[i+1] > ... > arr[arr.length - 1]`
+**Given**: A non-negative integer `n`  
+**Task**: Calculate the nth Fibonacci number  
+**Definition**: F(0) = 0, F(1) = 1, F(n) = F(n-1) + F(n-2) for n > 1
 
-**Important Rule**: You must solve it in O(log n) time complexity!
+**Important Note**: The Fibonacci sequence is a classic introduction to Dynamic Programming!
 
 ### 🌟 Real-World Example
 
-Think of it like finding the peak of a mountain:
-- **[0, 1, 0]** → Peak at index **1** (value: 1)
-- **[0, 2, 1, 0]** → Peak at index **1** (value: 2)
-- **[0, 10, 5, 2]** → Peak at index **1** (value: 10)
+Think of the Fibonacci sequence like rabbit population growth:
+- **F(0) = 0** - Start with no rabbits
+- **F(1) = 1** - One pair of baby rabbits
+- **F(2) = 1** - Still one pair (babies need time to mature)
+- **F(3) = 2** - Original pair + new baby pair
+- **F(4) = 3** - Previous two generations combined
+- Each generation is the sum of the previous two!
 
 ---
 
 ## 🔍 Understanding the Basics
 
-### 🏗️ What is a Mountain Array?
+### 🏗️ What is the Fibonacci Sequence?
 
 ```mermaid
-flowchart TD
-    A["Mountain Array"] --> B["Strictly Increasing<br/>up to peak"]
-    A --> C["Strictly Decreasing<br/>after peak"]
+flowchart LR
+    A["F(0) = 0"] --> B["F(1) = 1"]
+    B --> C["F(2) = 1"]
+    C --> D["F(3) = 2"]
+    D --> E["F(4) = 3"]
+    E --> F["F(5) = 5"]
     
     style A fill:#e1f5fe
-    style B fill:#e8f5e8
-    style C fill:#ffebee
+    style B fill:#e1f5fe
+    style C fill:#e8f5e8
+    style D fill:#e8f5e8
+    style E fill:#fff3e0
+    style F fill:#fff3e0
 ```
 
-**Think of it like climbing a mountain:**
-- You start at the base (lowest point)
-- You climb UP continuously to reach the peak
-- You descend DOWN continuously after the peak
-- There's exactly ONE peak
+**Think of it like a pattern:**
+- Start with 0 and 1
+- Each new number is the sum of the previous two
+- Pattern: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89...
 
-### 🎲 Binary Search on Mountain Arrays
+### 🎲 The Magic Formula
 
-Here's how we find the peak efficiently:
+Here's the core mathematical relationship:
 
 ```mermaid
 flowchart TD
-    A["Array: [0,2,1,0]"] --> B["Compare mid with right neighbor"]
-    B --> C{"arr[mid] < arr[mid+1]?"}
-    C -->|"Yes"| D["Peak is on RIGHT<br/>Move left boundary"]
-    C -->|"No"| E["Peak is on LEFT or at mid<br/>Move right boundary"]
-    D --> F["Narrow search space"]
-    E --> F
-    F --> G["Repeat until converge"]
+    A["F(n)"] --> B["F(n-1)<br/>Previous number"]
+    A --> C["F(n-2)<br/>Two steps back"]
+    B --> D["Add them together"]
+    C --> D
+    D --> E["F(n) = F(n-1) + F(n-2)"]
     
     style A fill:#e3f2fd
+    style B fill:#fff3e0
     style C fill:#fff3e0
-    style D fill:#e8f5e8
-    style E fill:#e8f5e8
+    style E fill:#c8e6c9
 ```
 
-**Key Operations:**
-- `arr[mid] < arr[mid+1]` → On ascending slope, go right
-- `arr[mid] > arr[mid+1]` → On descending slope or at peak, go left
+**Key Pattern:**
+- `F(5) = F(4) + F(3)` → 5 = 3 + 2
+- `F(6) = F(5) + F(4)` → 8 = 5 + 3
+- Always look back two steps!
 
 ---
 
 ## 📚 Step-by-Step Examples
 
-### 🟢 Example 1: Simple Mountain
+### 🟢 Example 1: Small Number
 
-**Input:** `arr = [0, 1, 0]`  
-**Output:** `1`
+**Input:** `n = 4`  
+**Output:** `3`
 
 ```mermaid
 flowchart TD
-    A["Start: [0,1,0]<br/>s=0, e=2"] --> B["mid=1<br/>arr[1]=1, arr[2]=0"]
-    B --> C["arr[1] > arr[2]<br/>Descending slope"]
-    C --> D["e = mid = 1"]
-    D --> E["s=0, e=1"]
-    E --> F["mid=0<br/>arr[0]=0, arr[1]=1"]
-    F --> G["arr[0] < arr[1]<br/>Ascending slope"]
-    G --> H["s = mid+1 = 1"]
-    H --> I["s=1, e=1<br/>Found peak at 1"]
+    A["Start: n = 4"] --> B["Base Cases<br/>F(0) = 0, F(1) = 1"]
+    B --> C["F(2) = F(1) + F(0)<br/>= 1 + 0 = 1"]
+    C --> D["F(3) = F(2) + F(1)<br/>= 1 + 1 = 2"]
+    D --> E["F(4) = F(3) + F(2)<br/>= 2 + 1 = 3"]
+    E --> F["Final: 3 ✅"]
     
     style A fill:#e8f5e8
-    style I fill:#c8e6c9
+    style F fill:#c8e6c9
 ```
 
 **Step-by-step breakdown:**
-1. **Start:** `s = 0, e = 2, arr = [0, 1, 0]`
-2. **Step 1:** Calculate mid: `mid = 0 + (2-0)/2 = 1`
-   - Compare: `arr[1] = 1 vs arr[2] = 0`
-   - `1 > 0` → Descending, peak is left or at mid
-   - Update: `e = mid = 1`
-3. **Step 2:** Now `s = 0, e = 1`
-   - Calculate mid: `mid = 0 + (1-0)/2 = 0`
-   - Compare: `arr[0] = 0 vs arr[1] = 1`
-   - `0 < 1` → Ascending, peak is right
-   - Update: `s = mid + 1 = 1`
-4. **Done:** `s = e = 1`, return `1`
+1. **Start:** Need F(4), have base cases F(0)=0, F(1)=1
+2. **Step 1:** Calculate F(2) = 1 + 0 = 1
+3. **Step 2:** Calculate F(3) = 1 + 1 = 2
+4. **Step 3:** Calculate F(4) = 2 + 1 = 3
+5. **Done:** Return 3
 
-### 🔵 Example 2: Larger Mountain
+### 🔴 Example 2: Base Case Zero
 
-**Input:** `arr = [0, 2, 1, 0]`  
-**Output:** `1`
+**Input:** `n = 0`  
+**Output:** `0`
 
 ```mermaid
 flowchart TD
-    A["Start: [0,2,1,0]<br/>s=0, e=3"] --> B["mid=1<br/>arr[1]=2, arr[2]=1"]
-    B --> C["arr[1] > arr[2]<br/>Descending slope"]
-    C --> D["e = mid = 1"]
-    D --> E["s=0, e=1<br/>Converged to peak"]
-    
-    style A fill:#e3f2fd
-    style E fill:#bbdefb
-```
-
-**Why it works:**
-- First comparison immediately identifies descending slope
-- Binary search converges in just one iteration!
-
-### 🟡 Example 3: Peak Near End
-
-**Input:** `arr = [0, 10, 5, 2]`  
-**Output:** `1`
-
-```mermaid
-flowchart TD
-    A["Start: [0,10,5,2]<br/>s=0, e=3"] --> B["mid=1<br/>arr[1]=10, arr[2]=5"]
-    B --> C["arr[1] > arr[2]<br/>Descending slope"]
-    C --> D["e = mid = 1"]
-    D --> E["s=0, e=1"]
-    E --> F["mid=0<br/>arr[0]=0, arr[1]=10"]
-    F --> G["arr[0] < arr[1]<br/>Ascending slope"]
-    G --> H["s = mid+1 = 1"]
-    H --> I["s=1, e=1<br/>Peak at index 1"]
-    
-    style A fill:#fff8e1
-    style I fill:#ffecb3
-```
-
-### 🚀 Example 4: Large Mountain
-
-**Input:** `arr = [0, 1, 2, 4, 8, 9, 10, 7, 5, 3, 2, 1]`  
-**Output:** `6`
-
-```mermaid
-flowchart TD
-    A["Start: s=0, e=11"] --> B["mid=5<br/>arr[5]=9, arr[6]=10"]
-    B --> C["9 < 10: Ascending<br/>s = 6"]
-    C --> D["s=6, e=11<br/>mid=8"]
-    D --> E["arr[8]=5, arr[9]=3<br/>5 > 3: Descending"]
-    E --> F["e = 8"]
-    F --> G["s=6, e=8<br/>mid=7"]
-    G --> H["arr[7]=7, arr[8]=5<br/>7 > 5: Descending"]
-    H --> I["e = 7"]
-    I --> J["s=6, e=7<br/>mid=6"]
-    J --> K["arr[6]=10, arr[7]=7<br/>10 > 7: Descending"]
-    K --> L["e = 6"]
-    L --> M["s=6, e=6<br/>Peak found at 6"]
+    A["Start: n = 0"] --> B{"Is n = 0?"}
+    B -->|"YES"| C["Return 0 immediately ✅"]
+    B -->|"NO"| D["Continue calculation"]
     
     style A fill:#e1f5fe
-    style M fill:#81d4fa
+    style C fill:#c8e6c9
 ```
 
-**Efficiency:**
-- Array size: 12 elements
-- Iterations: 4 (compared to 12 for linear scan)
-- Time saved: ~67%!
+**Instant return:**
+- F(0) is defined as 0
+- No calculation needed!
+
+### 🟡 Example 3: Base Case One
+
+**Input:** `n = 1`  
+**Output:** `1`
+
+```mermaid
+flowchart TD
+    A["Start: n = 1"] --> B{"Is n = 1?"}
+    B -->|"YES"| C["Return 1 immediately ✅"]
+    B -->|"NO"| D["Continue calculation"]
+    
+    style A fill:#fff8e1
+    style C fill:#c8e6c9
+```
+
+**Instant return:**
+- F(1) is defined as 1
+- No calculation needed!
+
+### 🟣 Example 4: Larger Number
+
+**Input:** `n = 10`  
+**Output:** `55`
+
+```mermaid
+flowchart TD
+    A["Start: n = 10"] --> B["Build sequence<br/>from F(2) to F(10)"]
+    B --> C["F(2)=1, F(3)=2, F(4)=3"]
+    C --> D["F(5)=5, F(6)=8, F(7)=13"]
+    D --> E["F(8)=21, F(9)=34, F(10)=55"]
+    E --> F["Final: 55 ✅"]
+    
+    style A fill:#f3e5f5
+    style F fill:#c8e6c9
+```
+
+**Complete sequence:**
+```
+F(0)=0, F(1)=1, F(2)=1, F(3)=2, F(4)=3
+F(5)=5, F(6)=8, F(7)=13, F(8)=21, F(9)=34, F(10)=55
+```
 
 ---
 
 ## 🛠️ The Algorithm
 
-### 🎯 Main Strategy: Binary Search with Neighbor Comparison
+### 🎯 Main Strategy: Space-Optimized Iteration
 
 ```mermaid
 flowchart TD
-    A["Initialize: start=0, end=n-1"] --> B{"start < end?"}
-    B -->|"No"| C["Return start<br/>Peak found"]
-    B -->|"Yes"| D["Calculate mid"]
-    D --> E{"arr[mid] < arr[mid+1]?"}
-    E -->|"Yes"| F["Ascending slope<br/>start = mid + 1"]
-    E -->|"No"| G["Descending slope<br/>end = mid"]
-    F --> B
-    G --> B
+    A["Initialize prev2=0, prev1=1"] --> B{"Is n <= 1?"}
+    B -->|"Yes"| C["Return n directly"]
+    B -->|"No"| D["Loop from i=2 to n"]
+    D --> E["curr = prev1 + prev2"]
+    E --> F["Slide window:<br/>prev2 = prev1<br/>prev1 = curr"]
+    F --> G{"More iterations?"}
+    G -->|"Yes"| E
+    G -->|"No"| H["Return curr"]
     
     style A fill:#e8f5e8
-    style E fill:#fff3e0
-    style C fill:#c8e6c9
+    style D fill:#fff3e0
+    style H fill:#c8e6c9
 ```
 
 ### 💻 The Code
 
 ```cpp
-int peakIndexInMountainArray(vector<int>& arr) {
-    int start = 0;
-    int end = arr.size() - 1;
+int fib(int n) {
+    // 🎯 BASE CASES: Handle F(0) and F(1)
+    if (n == 0) return 0;
+    if (n == 1) return 1;
     
-    while (start < end) {
-        // Calculate middle index
-        int mid = start + (end - start) / 2;
+    // 🔧 INITIALIZE: Set up rolling window
+    int prev2 = 0;  // F(i-2)
+    int prev1 = 1;  // F(i-1)
+    int curr;       // F(i)
+    
+    // 🔄 ITERATE: Build sequence from 2 to n
+    for (int i = 2; i <= n; ++i) {
+        // ➕ COMPUTE: Add previous two numbers
+        curr = prev1 + prev2;
         
-        // 🔍 KEY DECISION: Compare with right neighbor
-        if (arr[mid] < arr[mid + 1]) {
-            // ⛰️ Ascending slope - peak is ahead
-            start = mid + 1;
-        } else {
-            // ⛰️ Descending slope - peak is behind or here
-            end = mid;
-        }
+        // ⏩ SLIDE: Move window forward
+        prev2 = prev1;
+        prev1 = curr;
     }
     
-    return start;
+    return curr;
 }
 ```
 
-### 🛡️ Why This Works: The Logic Explained
+### 🛡️ Space Optimization Explained
 
-**Why compare with right neighbor only?**
+**Why do we only need 3 variables?**
 
 ```mermaid
 flowchart TD
-    A["At position mid"] --> B{"arr[mid] vs arr[mid+1]"}
-    B -->|"arr[mid] < arr[mid+1]"| C["Still climbing<br/>Peak is ahead"]
-    B -->|"arr[mid] > arr[mid+1]"| D["Started descending<br/>Peak is at or before mid"]
+    A["Traditional DP Array:<br/>Store all values<br/>Space: O(n)"] --> B["Observation:<br/>Only need last 2 values"]
+    B --> C["Optimized Approach:<br/>Use 3 variables<br/>Space: O(1)"]
+    C --> D["prev2, prev1, curr<br/>Roll forward like a window"]
     
-    C --> E["Eliminate left half<br/>start = mid + 1"]
-    D --> F["Eliminate right half<br/>end = mid"]
-    
-    style A fill:#e3f2fd
+    style A fill:#ffebee
     style C fill:#e8f5e8
-    style D fill:#ffebee
-    style E fill:#4caf50
-    style F fill:#4caf50
+    style D fill:#c8e6c9
 ```
 
 **The Math:**
-- If climbing (`arr[mid] < arr[mid+1]`), peak is definitely to the right
-- If descending (`arr[mid] > arr[mid+1]`), peak could be at `mid` or to the left
-- We keep `mid` in search space for descending case by setting `end = mid`
-- We exclude `mid` for ascending case by setting `start = mid + 1`
+- To calculate F(5), we only need F(4) and F(3)
+- We don't need F(0), F(1), F(2) anymore
+- Keep a "sliding window" of the last two values!
 
 ---
 
@@ -267,151 +249,156 @@ flowchart TD
 
 ### ✅ Normal Cases
 
-| Input | Output | Peak Value | Why |
-|-------|--------|------------|-----|
-| `[0, 1, 0]` | `1` | `1` | Smallest mountain |
-| `[0, 2, 1, 0]` | `1` | `2` | Classic mountain |
-| `[0, 10, 5, 2]` | `1` | `10` | Sharp peak |
+| Input | Output | Why |
+|-------|--------|-----|
+| `n = 2` | `1` | F(1) + F(0) = 1 + 0 = 1 |
+| `n = 5` | `5` | Build sequence: 0,1,1,2,3,5 |
+| `n = 10` | `55` | Tenth Fibonacci number |
 
 ### ⚠️ Edge Cases
 
-| Input | Output | Peak Value | Why |
-|-------|--------|------------|-----|
-| `[0, 1, 2, 3, 2, 1]` | `3` | `3` | Peak in middle |
-| `[1, 3, 5, 4, 2]` | `2` | `5` | Long ascent |
-| `[0, 5, 3, 2, 1]` | `1` | `5` | Long descent |
+| Input | Output | Why |
+|-------|--------|-----|
+| `n = 0` | `0` | Base case definition |
+| `n = 1` | `1` | Base case definition |
+| `n = 30` | `832040` | Large valid input |
 
-### 🎯 Binary Search Efficiency
+### 🎯 Boundary Testing
 
 ```mermaid
 flowchart TD
-    A["Test Categories"] --> B["Small Arrays<br/>n < 10"]
-    A --> C["Medium Arrays<br/>10 ≤ n < 100"]
-    A --> D["Large Arrays<br/>n ≥ 100"]
+    A["Test Categories"] --> B["Base Cases<br/>✅ F(0), F(1)"]
+    A --> C["Small Values<br/>✅ F(2) to F(5)"]
+    A --> D["Medium Values<br/>✅ F(10) to F(20)"]
+    A --> E["Large Values<br/>✅ F(25) to F(30)"]
     
-    B --> B1["2-3 iterations"]
-    C --> C1["4-7 iterations"]
-    D --> D1["7-10 iterations"]
+    B --> B1["F(0) → 0"]
+    B --> B2["F(1) → 1"]
     
-    B --> B2["Example: [0,1,0]"]
-    C --> C2["Example: [0..10..0]"]
-    D --> D2["Example: [0..100..0]"]
+    C --> C1["F(2) → 1"]
+    C --> C2["F(3) → 2"]
+    C --> C3["F(4) → 3"]
+    
+    D --> D1["F(10) → 55"]
+    D --> D2["F(15) → 610"]
+    
+    E --> E1["F(25) → 75025"]
+    E --> E2["F(30) → 832040"]
     
     style B fill:#e8f5e8
-    style C fill:#fff3e0
-    style D fill:#ffebee
+    style C fill:#e1f5fe
+    style D fill:#fff3e0
+    style E fill:#f3e5f5
 ```
 
 ---
 
 ## 🎓 Key Concepts Mastery
 
-### 🔍 Binary Search Pattern Recognition
+### 🔢 Dynamic Programming Fundamentals
 
-**When to use Binary Search:**
-1. ✅ Array has some sort of order (sorted, rotated, mountain)
-2. ✅ Can eliminate half the search space with each comparison
-3. ✅ Need O(log n) time complexity
-
-**Mountain Array Pattern:**
+**1. Identify Overlapping Subproblems:**
 ```cpp
-// Template for mountain array binary search
-while (start < end) {
-    int mid = start + (end - start) / 2;
-    
-    if (/* condition indicating peak is right */) {
-        start = mid + 1;  // Exclude mid, go right
-    } else {
-        end = mid;  // Include mid, go left
-    }
+// F(5) needs F(4) and F(3)
+// F(4) needs F(3) and F(2)
+// F(3) is computed twice! (overlapping)
+```
+
+**2. Use Previous Results:**
+```cpp
+// Don't recalculate F(3)
+// Store it and reuse it
+```
+
+**3. Build Bottom-Up:**
+```cpp
+// Start from F(0), F(1)
+// Build up to F(n)
+```
+
+### ⚠️ Space Complexity Optimization
+
+**Evolution of Solutions:**
+
+**Approach 1: Naive Recursion**
+```cpp
+// Time: O(2^n) - exponential!
+// Space: O(n) - recursion stack
+int fib(int n) {
+    if (n <= 1) return n;
+    return fib(n-1) + fib(n-2);  // Recalculates everything!
 }
-return start;  // start and end converge to peak
 ```
 
-### ⚠️ Common Mistakes to Avoid
-
-```mermaid
-flowchart TD
-    A["Common Mistakes"] --> B["Using start <= end"]
-    A --> C["Setting end = mid - 1"]
-    A --> D["Comparing with left neighbor"]
-    
-    B --> B1["❌ Causes infinite loop<br/>✅ Use start < end"]
-    C --> C1["❌ Might skip peak<br/>✅ Use end = mid"]
-    D --> D1["❌ Incorrect logic<br/>✅ Compare with right"]
-    
-    style A fill:#e3f2fd
-    style B1 fill:#ffebee
-    style C1 fill:#ffebee
-    style D1 fill:#ffebee
+**Approach 2: Memoization**
+```cpp
+// Time: O(n) - each number calculated once
+// Space: O(n) - array to store results
+vector<int> memo(n+1, -1);
+// Store each F(i) as we calculate it
 ```
 
-**Why `start < end` not `start <= end`?**
-- With `<`: Loop stops when `start == end` (converged to answer)
-- With `<=`: Loop continues, needs extra return logic, prone to errors
-
-**Why `end = mid` not `end = mid - 1`?**
-- Peak might BE at `mid` when descending
-- Using `mid - 1` might skip the peak entirely
+**Approach 3: Space-Optimized (Our Solution)**
+```cpp
+// Time: O(n) - single pass
+// Space: O(1) - only 3 variables!
+int prev2 = 0, prev1 = 1, curr;
+// Only keep what we need!
+```
 
 ### 🎯 Problem-Solving Framework
 
-```mermaid
-flowchart TD
-    A["Identify Array Type"] --> B["Mountain Array"]
-    B --> C["Choose Binary Search"]
-    C --> D["Define Comparison Logic"]
-    D --> E["Implement Boundary Updates"]
-    E --> F["Test Edge Cases"]
-    
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-    style E fill:#fce4ec
-    style F fill:#e0f2f1
+**The "Rolling Window" Technique:**
+
 ```
+Step 1: [prev2=0] [prev1=1] → Calculate F(2)
+Step 2:           [prev2=1] [prev1=1] → Calculate F(3)
+Step 3:                     [prev2=1] [prev1=2] → Calculate F(4)
+...
+```
+
+**Pattern Recognition:**
+- Whenever you need "last two values"
+- Consider using a rolling window
+- Common in DP, sliding window problems
 
 ---
 
 ## 📊 Complexity Analysis
 
-### ⏰ Time Complexity: O(log n)
+### ⏰ Time Complexity: O(n)
 
-**Why logarithmic?**
-- Each iteration cuts search space in half
-- For array of size `n`, maximum iterations = ⌈log₂ n⌉
-- Example: n = 1000 → max 10 iterations!
+**Why linear?**
+- We iterate from 2 to n exactly once
+- Each iteration does constant work (one addition)
+- Total operations = n - 1
 
 ```mermaid
 flowchart TD
-    A["Array Size"] --> B["n = 8: 3 iterations"]
-    A --> C["n = 16: 4 iterations"]
-    A --> D["n = 1024: 10 iterations"]
-    A --> E["n = 1000000: 20 iterations"]
+    A["Input n"] --> B["F(2): 1 operation"]
+    B --> C["F(3): 1 operation"]
+    C --> D["F(4): 1 operation"]
+    D --> E["..."]
+    E --> F["F(n): 1 operation"]
+    F --> G["Total: (n-1) operations<br/>= O(n)"]
     
     style A fill:#e3f2fd
-    style B fill:#e8f5e8
-    style C fill:#e8f5e8
-    style D fill:#e8f5e8
-    style E fill:#fff3e0
+    style G fill:#c8e6c9
 ```
-
-**Comparison with Linear Search:**
-| Array Size | Linear O(n) | Binary O(log n) | Speedup |
-|------------|-------------|-----------------|---------|
-| 10 | 10 | 4 | 2.5x |
-| 100 | 100 | 7 | 14x |
-| 1,000 | 1,000 | 10 | 100x |
-| 1,000,000 | 1,000,000 | 20 | 50,000x |
 
 ### 💾 Space Complexity: O(1)
 
 **Why constant space?**
-- Only use three variables: `start`, `end`, `mid`
-- No recursion (no call stack)
-- No extra data structures
-- Memory usage independent of array size
+- Only use three variables: `prev2`, `prev1`, `curr`
+- No arrays, no recursion stack
+- Memory usage stays the same for n=10 or n=1000
+
+**Comparison:**
+```
+Array approach:     O(n) space - stores all F(0) to F(n)
+Recursive:          O(n) space - call stack depth
+Our solution:       O(1) space - just 3 variables! ✅
+```
 
 ---
 
@@ -421,289 +408,253 @@ Once you master this, try these similar problems:
 
 | Problem | Difficulty | Key Concept |
 |---------|------------|-------------|
-| 🔍 Binary Search | Easy | Basic binary search |
-| 🔢 Find First and Last Position | Medium | Binary search variants |
-| 🎯 Search in Rotated Sorted Array | Medium | Modified binary search |
-| ⛰️ Find Peak Element | Medium | Similar peak finding |
-| 🌊 Peak Index in Mountain Array II | Medium | 2D mountain arrays |
+| 🪜 Climbing Stairs | Easy | Same DP pattern as Fibonacci |
+| 🏠 House Robber | Medium | DP with rolling window |
+| 💰 Min Cost Climbing Stairs | Easy | DP optimization |
+| 🔢 Tribonacci Number | Easy | Three-way recurrence |
 
 ---
 
 ## 💼 Interview Questions & Answers
 
-### ❓ Question 1: Why use binary search instead of linear scan?
+### ❓ Question 1: Why is this a Dynamic Programming problem?
 
 **Answer:**  
-Binary search is **exponentially faster** for large arrays:
-- **Linear scan**: Check every element → O(n) time
-- **Binary search**: Eliminate half each time → O(log n) time
+Fibonacci has two key DP properties:
+1. **Overlapping Subproblems**: F(5) needs F(4) and F(3), F(4) needs F(3) too
+2. **Optimal Substructure**: F(n) is built from optimal solutions of F(n-1) and F(n-2)
 
 **Simple Explanation:**  
-It's like finding a word in a dictionary:
-- **Bad way**: Read every word from start (linear)
-- **Smart way**: Open to middle, decide left or right, repeat (binary)
-
-For 1 million elements:
-- Linear: 1,000,000 comparisons
-- Binary: 20 comparisons
-- **That's 50,000x faster!**
+It's like building a house - you need the previous floors completed before adding the next one. Each floor (F(n)) depends on the floors below it (F(n-1), F(n-2)).
 
 ---
 
-### ❓ Question 2: What if the array is not a mountain array?
+### ❓ Question 2: What's wrong with naive recursion?
 
 **Answer:**  
-The problem **guarantees** a mountain array, so we don't need to validate. But if needed:
+Naive recursion recalculates the same values exponentially many times:
 
 ```cpp
-bool isMountainArray(vector<int>& arr) {
-    if (arr.size() < 3) return false;
-    
-    int peak = peakIndexInMountainArray(arr);
-    
-    // Check strictly increasing before peak
-    for (int i = 0; i < peak; i++) {
-        if (arr[i] >= arr[i + 1]) return false;
-    }
-    
-    // Check strictly decreasing after peak
-    for (int i = peak; i < arr.size() - 1; i++) {
-        if (arr[i] <= arr[i + 1]) return false;
-    }
-    
-    return true;
+F(5) calls F(4) and F(3)
+F(4) calls F(3) and F(2)  // F(3) calculated again!
+F(3) calls F(2) and F(1)  // F(2) calculated again!
+...
+```
+
+**Time Complexity:** O(2^n) - doubles with each increase in n!
+
+**Simple Explanation:**  
+For F(5), you calculate F(3) twice, F(2) three times, F(1) five times! It's like cooking the same meal multiple times instead of saving leftovers.
+
+---
+
+### ❓ Question 3: How does the space optimization work?
+
+**Answer:**  
+We observe that to calculate F(n), we only need F(n-1) and F(n-2). We don't need to store F(0) through F(n-2).
+
+**Code Evolution:**
+```cpp
+// ❌ Unnecessary: Store all values
+vector<int> fib(n+1);  // O(n) space
+
+// ✅ Optimized: Only store what we need
+int prev2 = 0, prev1 = 1, curr;  // O(1) space
+```
+
+**Simple Explanation:**  
+It's like a relay race - you only need to pass the baton to the next runner, not carry every baton from the start!
+
+---
+
+### ❓ Question 4: Can you explain the "rolling window" technique?
+
+**Answer:**  
+The rolling window maintains only the last two Fibonacci numbers:
+
+```
+Initial:  [0][1]        → Ready to compute F(2)
+After F(2): [1][1]      → Ready to compute F(3)
+After F(3): [1][2]      → Ready to compute F(4)
+After F(4): [2][3]      → Ready to compute F(5)
+```
+
+**Code Pattern:**
+```cpp
+for (int i = 2; i <= n; i++) {
+    curr = prev1 + prev2;  // Compute next
+    prev2 = prev1;         // Slide window
+    prev1 = curr;          // Slide window
 }
 ```
 
 **Simple Explanation:**  
-Verify it goes UP continuously to peak, then DOWN continuously after.
+Think of a moving train window - you see two consecutive stations at a time, and the window slides forward. You don't need to see all stations at once!
 
 ---
 
-### ❓ Question 3: Why do we compare arr[mid] with arr[mid+1] and not arr[mid-1]?
+### ❓ Question 5: What's the time and space complexity?
 
 **Answer:**  
-Both work, but comparing with `arr[mid+1]` is simpler:
+**Time: O(n)** - Single loop from 2 to n, each iteration is O(1)
+**Space: O(1)** - Only three variables regardless of input size
 
-**With right neighbor (mid+1):**
-- `arr[mid] < arr[mid+1]` → Peak is right → `start = mid + 1`
-- `arr[mid] > arr[mid+1]` → Peak is left or at mid → `end = mid`
+**Simple Explanation:**
+```
+F(10): 9 iterations  → O(n)
+F(100): 99 iterations → O(n)
+F(1000): 999 iterations → O(n)
 
-**With left neighbor (mid-1):**
-- `arr[mid] > arr[mid-1]` → Peak is right or at mid → `start = mid`
-- `arr[mid] < arr[mid-1]` → Peak is left → `end = mid - 1`
-- **Problem**: Using `start = mid` can cause infinite loop!
+Variables used: 3 (prev2, prev1, curr) → O(1) always
+```
 
-**Simple Explanation:**  
-Right neighbor comparison leads to cleaner boundary updates without infinite loop risk.
+**Comparison:**
+- Recursive: Time O(2^n), Space O(n) ❌
+- Memoization: Time O(n), Space O(n) ⚠️
+- Our solution: Time O(n), Space O(1) ✅
 
 ---
 
-### ❓ Question 4: How do you prevent infinite loops in binary search?
+### ❓ Question 6: How would you implement with memoization?
 
 **Answer:**  
-Follow these rules:
+Store computed values to avoid recalculation:
 
 ```cpp
-while (start < end) {  // ✅ Use <, not <=
-    int mid = start + (end - start) / 2;
+int fib(int n, vector<int>& memo) {
+    if (n <= 1) return n;
     
-    if (condition) {
-        start = mid + 1;  // ✅ Move past mid
-    } else {
-        end = mid;  // ✅ Include mid (might be answer)
-    }
-}
-return start;  // ✅ start == end when loop exits
-```
-
-**Key points:**
-1. **Use `<` not `<=`**: Loop stops when converged
-2. **Asymmetric updates**: One side excludes mid, other includes
-3. **Consistent logic**: Always move boundaries properly
-
-**Simple Explanation:**  
-It's like narrowing a range: keep closing in until start and end meet at the answer.
-
----
-
-### ❓ Question 5: What's the space complexity and why?
-
-**Answer:**  
-**Space: O(1)** - We only use three variables regardless of array size.
-
-```cpp
-int start = 0;      // Variable 1
-int end = n - 1;    // Variable 2
-int mid = ...;      // Variable 3
-```
-
-**Simple Explanation:**  
-Whether array has 10 or 10 million elements, we always use just 3 variables. That's constant space!
-
----
-
-### ❓ Question 6: Can you solve this with recursion?
-
-**Answer:**  
-Yes, but it's less efficient:
-
-```cpp
-int peakIndexRecursive(vector<int>& arr, int start, int end) {
-    if (start == end) return start;
+    // Check if already computed
+    if (memo[n] != -1) return memo[n];
     
-    int mid = start + (end - start) / 2;
-    
-    if (arr[mid] < arr[mid + 1]) {
-        return peakIndexRecursive(arr, mid + 1, end);
-    } else {
-        return peakIndexRecursive(arr, start, mid);
-    }
+    // Compute and store
+    memo[n] = fib(n-1, memo) + fib(n-2, memo);
+    return memo[n];
 }
 ```
 
-**Pros:** More intuitive for some people  
-**Cons:** 
-- Uses O(log n) call stack space (not O(1))
-- Slower due to function call overhead
-- Risk of stack overflow for huge arrays
+**Pros:** Intuitive, follows the mathematical definition  
+**Cons:** Uses O(n) space, recursion overhead
+
+**Simple Explanation:**  
+It's like writing down your math homework answers in a notebook. When you see the same problem again, you just look it up instead of solving it again!
 
 ---
 
-### ❓ Question 7: What if there are multiple peaks?
+### ❓ Question 7: What about the Golden Ratio formula?
 
 **Answer:**  
-The problem guarantees **exactly one peak** (mountain array definition). But if there were multiple:
+There's a closed-form formula using the golden ratio φ:
 
 ```cpp
-// Find ANY peak
-int findAPeak(vector<int>& arr) {
-    // Same binary search algorithm
-    // Returns one of the peaks (any is valid)
-}
-
-// Find ALL peaks
-vector<int> findAllPeaks(vector<int>& arr) {
-    vector<int> peaks;
-    for (int i = 1; i < arr.size() - 1; i++) {
-        if (arr[i] > arr[i-1] && arr[i] > arr[i+1]) {
-            peaks.push_back(i);
-        }
-    }
-    return peaks;  // O(n) time required
-}
+F(n) = (φ^n - ψ^n) / √5
+where φ = (1 + √5) / 2  (golden ratio)
+      ψ = (1 - √5) / 2
 ```
 
+**Why we don't use it:**
+- Floating-point precision errors for large n
+- Not as intuitive to understand
+- Most interviewers want to see DP thinking
+
 **Simple Explanation:**  
-Binary search finds ONE peak efficiently. Finding ALL peaks requires checking every element.
+It's mathematically elegant but like using a calculator with rounding errors - works for small numbers but gets messy!
 
 ---
 
-### ❓ Question 8: How does mid calculation prevent overflow?
+### ❓ Question 8: How does this relate to real-world problems?
 
 **Answer:**  
+Fibonacci patterns appear everywhere:
+
+**Nature:**
+- Flower petals (lily: 3, buttercup: 5, daisy: 34)
+- Pine cone spirals
+- Shell patterns (nautilus)
+
+**Computer Science:**
+- Algorithm analysis (Fibonacci heap)
+- Recursive algorithm complexity
+- Dynamic programming intro
+
+**Finance:**
+- Fibonacci retracement (stock analysis)
+- Market patterns
+
+**Simple Explanation:**  
+Nature loves this pattern! Count the spirals on a sunflower or pine cone - they're Fibonacci numbers!
+
+---
+
+### ❓ Question 9: What if n is negative?
+
+**Answer:**  
+Fibonacci is typically defined for n ≥ 0. For negative n, there's an extension:
+
+```
+F(-n) = (-1)^(n+1) * F(n)
+
+Examples:
+F(-1) = 1
+F(-2) = -1
+F(-3) = 2
+F(-4) = -3
+```
+
+**For interviews:** Clarify if negative inputs are expected. If yes, handle them; if no, you can assume n ≥ 0.
+
+**Simple Explanation:**  
+It's like running the sequence backwards with alternating signs. Most problems stick to non-negative inputs.
+
+---
+
+### ❓ Question 10: How do you handle very large n?
+
+**Answer:**  
+For large n, consider:
+
+**1. Integer Overflow:**
 ```cpp
-// ❌ Can overflow if start and end are large
-int mid = (start + end) / 2;
-
-// ✅ Safe from overflow
-int mid = start + (end - start) / 2;
+// F(47) overflows 32-bit int!
+// Use long long (64-bit)
+long long fib(int n) { ... }
 ```
 
-**Why it matters:**
+**2. Matrix Exponentiation (Advanced):**
+- Can compute F(n) in O(log n) time
+- Uses matrix multiplication
+
 ```
-Example: start = 1,500,000,000, end = 2,000,000,000
-
-Wrong way:
-(start + end) = 3,500,000,000
-INT_MAX = 2,147,483,647
-→ Overflow! 💥
-
-Right way:
-(end - start) = 500,000,000
-start + 500,000,000/2 = 1,750,000,000
-→ Safe! ✅
+[F(n+1)]   [1 1]^n   [1]
+[F(n)  ] = [1 0]   × [0]
 ```
 
-**Simple Explanation:**  
-Adding two large numbers can exceed the maximum integer value. Calculating the difference first prevents this.
-
----
-
-### ❓ Question 9: Can you visualize the search space reduction?
-
-**Answer:**  
-```
-Array: [0, 1, 2, 4, 8, 9, 10, 7, 5, 3, 2, 1]
-Index:  0  1  2  3  4  5   6  7  8  9 10 11
-
-Iteration 1:
-[0, 1, 2, 4, 8, 9, 10, 7, 5, 3, 2, 1]
- ^              ^                    ^
-start          mid                  end
-arr[5]=9 < arr[6]=10 → Go right
-
-Iteration 2:
-              [10, 7, 5, 3, 2, 1]
-               ^      ^        ^
-              start  mid      end
-arr[8]=5 > arr[9]=3 → Go left
-
-Iteration 3:
-              [10, 7]
-               ^  ^
-              start/mid/end
-arr[6]=10 > arr[7]=7 → Go left
-
-Iteration 4:
-              [10]
-               ^
-              start/end
-Converged! Peak at index 6
+**3. Modular Arithmetic:**
+```cpp
+// Often problems ask for F(n) % MOD
+const int MOD = 1e9 + 7;
+curr = (prev1 + prev2) % MOD;
 ```
 
 **Simple Explanation:**  
-Each step cuts the problem size in half until we find the peak!
-
----
-
-### ❓ Question 10: What other problems use this pattern?
-
-**Answer:**  
-This "binary search on mountain array" pattern appears in:
-
-1. **Find Peak Element (LeetCode 162)**
-   - Similar logic, but array might not be strictly mountain
-   
-2. **Peak Index in 2D Array**
-   - Apply same logic in 2D space
-
-3. **Search in Rotated Sorted Array**
-   - Use comparison to determine which side is sorted
-
-4. **Find Minimum in Rotated Sorted Array**
-   - Compare with boundaries to find rotation point
-
-**Simple Explanation:**  
-Whenever you can eliminate half the search space with one comparison, binary search is your friend!
+For F(50), use `long long`. For F(1000000), tell the interviewer about matrix exponentiation (they'll be impressed!).
 
 ---
 
 ### 🎯 Common Interview Follow-ups
 
-**Q: "Can you optimize this further?"**  
-A: Already optimal! O(log n) time and O(1) space. Can't do better than logarithmic for searching.
+**Q: "Can you optimize further?"**  
+A: For better time complexity, use matrix exponentiation O(log n). For space, O(1) is optimal - can't do better!
 
-**Q: "What if array can have plateaus (equal consecutive elements)?"**  
-A: Would need to modify logic to handle `arr[mid] == arr[mid+1]` case, possibly falling back to linear scan in that region.
+**Q: "What if I want the entire sequence up to n?"**  
+A: Then you DO need O(n) space to store all values. The O(1) optimization only works for getting just F(n).
 
 **Q: "How would you test this function?"**  
 A: Test cases should include:
-- Small mountains: `[0,1,0]`
-- Large mountains: `[0,1,2,...,100,...,2,1,0]`
-- Peak near start: `[0,10,5,2,1]`
-- Peak near end: `[0,1,2,3,4,10,5]`
-- Peak in middle: `[1,2,3,4,3,2,1]`
+- Base cases: `F(0)=0`, `F(1)=1`
+- Small: `F(2)=1`, `F(3)=2`, `F(4)=3`
+- Medium: `F(10)=55`, `F(15)=610`
+- Large: `F(30)=832040`
 
 ---
 
@@ -712,87 +663,82 @@ A: Test cases should include:
 ### 🔑 Essential Code Patterns
 
 ```cpp
-// Binary search for mountain peak
-int start = 0, end = n - 1;
-while (start < end) {
-    int mid = start + (end - start) / 2;
-    
-    if (arr[mid] < arr[mid + 1]) {
-        start = mid + 1;  // Peak is right
-    } else {
-        end = mid;  // Peak is left or at mid
+// Space-Optimized Iterative (Best for interviews)
+int fib(int n) {
+    if (n <= 1) return n;
+    int prev2 = 0, prev1 = 1, curr;
+    for (int i = 2; i <= n; i++) {
+        curr = prev1 + prev2;
+        prev2 = prev1;
+        prev1 = curr;
     }
+    return curr;
 }
-return start;
 
-// Key insights:
-// 1. Use start < end (not <=)
-// 2. Compare with RIGHT neighbor
-// 3. Asymmetric updates: mid+1 vs mid
-// 4. Return start (equals end at convergence)
+// Memoization (Good for explanation)
+int fib(int n, vector<int>& memo) {
+    if (n <= 1) return n;
+    if (memo[n] != -1) return memo[n];
+    return memo[n] = fib(n-1, memo) + fib(n-2, memo);
+}
 ```
 
-### 📝 Important Properties
+### 📝 Important Formulas
 
 ```cpp
-// Mountain Array guarantees:
-// 1. Length >= 3
-// 2. Strictly increasing to peak
-// 3. Strictly decreasing after peak
-// 4. Exactly one peak exists
+// Recurrence Relation
+F(n) = F(n-1) + F(n-2)
 
-// Binary Search guarantees:
-// 1. O(log n) time complexity
-// 2. O(1) space complexity
-// 3. Convergence to single element
+// Base Cases
+F(0) = 0
+F(1) = 1
+
+// First 10 Fibonacci Numbers
+0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
 ```
 
 ### 🧠 Mental Model
 
-```mermaid
-flowchart TD
-    A["Standing at middle<br/>of mountain range"] --> B["Look at path ahead"]
-    B --> C{"Still going uphill?"}
-    C -->|"Yes"| D["Peak is ahead<br/>Go right"]
-    C -->|"No"| E["Peak is behind or here<br/>Go left"]
-    D --> F["Repeat until<br/>found peak"]
-    E --> F
-    
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#fff3e0
-    style D fill:#e8f5e8
-    style E fill:#e8f5e8
-    style F fill:#c8e6c9
+**Think of Fibonacci as:**
+1. **Building Blocks**: Each number built from previous two
+2. **Rolling Window**: Only need last two values
+3. **Dynamic Programming**: Classic DP introduction
+
+**Visual Pattern:**
+```
+Add these two:    0   1   1   2   3   5   8
+                   ↓ + ↓   ↓ + ↓   ↓ + ↓
+To get this:          1       2       3       5
 ```
 
 ---
 
 ## 🏆 Mastery Checklist
 
-- [ ] ✅ Understand mountain array properties
-- [ ] ✅ Know when to use binary search
-- [ ] ✅ Master the comparison logic (mid vs mid+1)
-- [ ] ✅ Handle boundary updates correctly
-- [ ] ✅ Avoid infinite loops
-- [ ] ✅ Solve in O(log n) time
-- [ ] ✅ Use O(1) space only
+- [ ] ✅ Understand the Fibonacci sequence definition
+- [ ] ✅ Explain why it's a DP problem (overlapping subproblems)
+- [ ] ✅ Implement space-optimized O(1) solution
+- [ ] ✅ Explain the rolling window technique
+- [ ] ✅ Compare recursive vs memoization vs iterative
+- [ ] ✅ Handle base cases (F(0), F(1))
+- [ ] ✅ Achieve O(n) time complexity
 - [ ] ✅ Test all edge cases thoroughly
-- [ ] ✅ Answer common interview questions confidently
-- [ ] ✅ Explain why algorithm works
+- [ ] ✅ Answer interview questions confidently
+- [ ] ✅ Recognize similar DP patterns in other problems
 
 ---
 
 ## 💡 Pro Tips
 
-1. **🎯 Pattern Recognition**: Mountain array = unimodal function = binary search territory
-2. **🔍 Right Neighbor Rule**: Always compare with right neighbor for cleaner logic
-3. **🚫 Avoid `<=` in Loop**: Use `start < end` to prevent infinite loops
-4. **📏 Boundary Updates**: One side excludes mid (`mid+1`), other includes (`mid`)
-5. **🧪 Test Thoroughly**: Small arrays, large arrays, peak at different positions
-6. **💭 Visualize**: Draw the mountain and trace through the binary search steps
-7. **⚡ Know the Math**: log₂(1,000,000) ≈ 20 iterations max!
+1. **🎯 Pattern Recognition**: Fibonacci pattern appears in Climbing Stairs, House Robber, and many DP problems
+2. **🔧 Start Simple**: Write recursive solution first, then optimize to iterative
+3. **📝 Draw It Out**: Visualize the sequence for small n to understand the pattern
+4. **💾 Know Your Options**: Recursive (slow), Memoization (medium), Iterative (fast)
+5. **🧪 Test Base Cases**: Always verify F(0), F(1), and F(2) work correctly
+6. **🚀 Think Space**: In interviews, mention you can optimize from O(n) to O(1)
+7. **📚 Learn the Family**: Tribonacci (3 terms), Pell numbers (similar patterns)
+8. **🎓 Golden Ratio**: Mention it for bonus points, but use DP for actual solution
 
 ---
 
-**🎉 Congratulations! You now have a complete understanding of binary search on mountain arrays and can confidently solve peak finding problems in logarithmic time. Keep practicing and happy coding!**
+**🎉 Congratulations! You now have a complete understanding of the Fibonacci problem and foundational Dynamic Programming concepts. This is your first step into the world of DP optimization. Keep practicing and happy coding!**
