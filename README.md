@@ -58,9 +58,9 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    A["Array: [4,5,6,7,1,2,3]<br/>Check mid = 7"] --> B{Which half<br/>is sorted?}
-    B -->|nums[start] <= nums[mid]| C["Left half sorted<br/>[4,5,6,7]"]
-    B -->|nums[mid] <= nums[end]| D["Right half sorted<br/>[1,2,3]"]
+    A["Array: [4,5,6,7,1,2,3]<br/>Check mid = 7"] --> B{"Which half<br/>is sorted?"}
+    B -->|"nums[start] <= nums[mid]"| C["Left half sorted<br/>[4,5,6,7]"]
+    B -->|"nums[mid] <= nums[end]"| D["Right half sorted<br/>[1,2,3]"]
     
     style A fill:#e3f2fd
     style C fill:#e8f5e8
@@ -84,9 +84,9 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["Start: [4,5,6,7,0,1,2]<br/>target=5, s=0, e=6"] --> B["mid=3, nums[mid]=7"]
-    B --> C{nums[s] <= nums[mid]?}
+    B --> C{"nums[s] <= nums[mid]?"}
     C -->|YES| D["Left sorted: [4,5,6,7]"]
-    D --> E{Is target in<br/>range [4,7]?}
+    D --> E{"Is target in<br/>range [4,7]?"}
     E -->|YES| F["Search left: e=mid-1"]
     F --> G["New range: [4,5,6]<br/>s=0, e=2"]
     G --> H["mid=1, nums[mid]=5"]
@@ -112,15 +112,15 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["Start: [4,5,6,7,0,1,2]<br/>target=0, s=0, e=6"] --> B["mid=3, nums[mid]=7"]
-    B --> C{nums[s] <= nums[mid]?}
+    B --> C{"nums[s] <= nums[mid]?"}
     C -->|YES| D["Left sorted: [4,5,6,7]"]
-    D --> E{Is target in<br/>range [4,7]?}
+    D --> E{"Is target in<br/>range [4,7]?"}
     E -->|NO| F["Search right: s=mid+1"]
     F --> G["New range: [0,1,2]<br/>s=4, e=6"]
     G --> H["mid=5, nums[mid]=1"]
-    H --> I{nums[mid] <= nums[e]?}
+    H --> I{"nums[mid] <= nums[e]?"}
     I -->|YES| J["Right sorted: [1,2]"]
-    J --> K{Is target in<br/>range [1,2]?}
+    J --> K{"Is target in<br/>range [1,2]?"}
     K -->|NO| L["Search left: e=mid-1"]
     L --> M["mid=4, nums[mid]=0"]
     M --> N["Found! Return 4"]
@@ -171,14 +171,14 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["Initialize s=0, e=n-1"] --> B{s <= e?}
+    A["Initialize s=0, e=n-1"] --> B{"s <= e?"}
     B -->|No| Z["Return -1<br/>Not found"]
     B -->|Yes| C["Calculate mid = s + (e-s)/2"]
-    C --> D{nums[mid] == target?}
+    C --> D{"nums[mid] == target?"}
     D -->|Yes| E["Return mid"]
-    D -->|No| F{Is left half<br/>sorted?}
-    F -->|Yes| G{Target in<br/>left range?}
-    F -->|No| H{Target in<br/>right range?}
+    D -->|No| F{"Is left half<br/>sorted?"}
+    F -->|Yes| G{"Target in<br/>left range?"}
+    F -->|No| H{"Target in<br/>right range?"}
     G -->|Yes| I["e = mid - 1"]
     G -->|No| J["s = mid + 1"]
     H -->|Yes| J
@@ -233,7 +233,7 @@ int search(vector<int>& nums, int target) {
 ```mermaid
 flowchart LR
     A["Array [4,5,6,7,0,1,2]"] --> B["Pick mid"]
-    B --> C{nums[s] <= nums[mid]?}
+    B --> C{"nums[s] <= nums[mid]?"}
     C -->|YES| D["Left sorted<br/>Use normal range check"]
     C -->|NO| E["Right sorted<br/>Use normal range check"]
     
