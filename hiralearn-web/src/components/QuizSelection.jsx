@@ -27,13 +27,11 @@ const QuizSelection = () => {
     }
   };
   
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedChars([]);
-      setSelectAll(false);
+  const handleCheckboxChange = (charId) => {
+    if (selectedChars.includes(charId)) {
+      setSelectedChars(selectedChars.filter(id => id !== charId));
     } else {
-      setSelectedChars(hiraganaData.map(char => char.id));
-      setSelectAll(true);
+      setSelectedChars([...selectedChars, charId]);
     }
   };
   
@@ -59,7 +57,7 @@ const QuizSelection = () => {
         
         <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
           <h3 style={{ color: '#e2e8f0', marginBottom: '1rem' }}>Quiz Types (Select Multiple):</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', maxWidth: '800px', margin: '0 auto' }}>
+          <div className="quiz-types-grid">
             {quizTypes.map(type => (
               <label key={type.value} style={{ display: 'flex', alignItems: 'center', color: '#e2e8f0', cursor: 'pointer' }}>
                 <input

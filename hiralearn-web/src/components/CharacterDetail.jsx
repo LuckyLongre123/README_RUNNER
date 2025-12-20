@@ -110,7 +110,7 @@ const CharacterDetail = () => {
           <div className="canvas-container">
             <svg 
               ref={strokeSvgRef} 
-              width="600" 
+              width="100%" 
               height="300" 
               className="stroke-canvas"
               viewBox="0 0 100 100"
@@ -156,6 +156,7 @@ const CharacterDetail = () => {
               onTouchStart={startDrawing}
               onTouchMove={draw}
               onTouchEnd={stopDrawing}
+              style={{ width: '100%', height: 'auto', maxWidth: '600px' }}
             />
             {showGuide && (
               <div className="guide-overlay">
