@@ -1805,4 +1805,503 @@ For $ax^2y'' + bxy' + cy = 0$: $ar(r-1) + br + c = 0$
 
 ### 📚 Practice Schedule Recommendation
 
-**Week 1-2:** Homogen
+**Week 1-2:** Homogeneous equations (constant coefficients and Cauchy-Euler)
+- Focus: Characteristic/indicial equations, all three root types
+- Daily: 3-4 problems mixing constant coefficient and Cauchy-Euler
+
+**Week 3-4:** Non-homogeneous equations
+- Focus: Method selection, undetermined coefficients, variation of parameters
+- Daily: 2 undetermined coefficients + 1 variation of parameters problem
+
+**Week 5:** Boundary value problems and systems
+- Focus: Two-point BVPs, elimination method for systems
+- Daily: 1 BVP + 1 system problem
+
+**Week 6 (Pre-exam):** Mixed practice and review
+- Focus: Random problem selection, timed practice
+- Daily: 5-6 mixed problems under exam conditions
+
+---
+
+## Additional Practice Problems (Mixed)
+
+### Problem Set A: Homogeneous Equations
+
+**A1.** Solve $y'' + 6y' + 13y = 0$
+
+<details>
+<summary>Solution</summary>
+
+Characteristic equation: $r^2 + 6r + 13 = 0$
+
+Using quadratic formula:
+$$r = \frac{-6 \pm \sqrt{36-52}}{2} = \frac{-6 \pm \sqrt{-16}}{2} = \frac{-6 \pm 4i}{2} = -3 \pm 2i$$
+
+$\alpha = -3$, $\beta = 2$
+
+**Answer:** $y = e^{-3x}(c_1\cos 2x + c_2\sin 2x)$
+</details>
+
+**A2.** Solve $x^2y'' + 7xy' + 9y = 0$
+
+<details>
+<summary>Solution</summary>
+
+Cauchy-Euler equation. Indicial equation:
+$$r(r-1) + 7r + 9 = 0$$
+$$r^2 + 6r + 9 = 0$$
+$$(r+3)^2 = 0$$
+
+$r = -3$ (multiplicity 2)
+
+**Answer:** $y = c_1x^{-3} + c_2x^{-3}\ln x = \frac{c_1 + c_2\ln x}{x^3}$
+</details>
+
+**A3.** Solve $y^{(3)} - 3y'' + 3y' - y = 0$
+
+<details>
+<summary>Solution</summary>
+
+Third-order equation. Characteristic equation:
+$$r^3 - 3r^2 + 3r - 1 = 0$$
+
+Recognize this as $(r-1)^3 = 0$
+
+$r = 1$ (multiplicity 3)
+
+**Answer:** $y = (c_1 + c_2x + c_3x^2)e^x$
+</details>
+
+### Problem Set B: Non-Homogeneous Equations
+
+**B1.** Solve $y'' - 4y = 8e^{2x}$
+
+<details>
+<summary>Solution</summary>
+
+**Homogeneous:** $r^2 - 4 = 0 \Rightarrow r = \pm 2$
+
+$y_c = c_1e^{2x} + c_2e^{-2x}$
+
+**Particular:** Try $y_p = Ae^{2x}$ but $e^{2x}$ is in $y_c$
+
+Modified: $y_p = Axe^{2x}$
+
+$y_p' = Ae^{2x} + 2Axe^{2x}$
+
+$y_p'' = 2Ae^{2x} + 2Ae^{2x} + 4Axe^{2x} = 4Ae^{2x} + 4Axe^{2x}$
+
+Substitute:
+$$4Ae^{2x} + 4Axe^{2x} - 4Axe^{2x} = 8e^{2x}$$
+$$4Ae^{2x} = 8e^{2x}$$
+$$A = 2$$
+
+**Answer:** $y = c_1e^{2x} + c_2e^{-2x} + 2xe^{2x}$
+</details>
+
+**B2.** Solve $y'' + 4y = \sin 2x$
+
+<details>
+<summary>Solution</summary>
+
+**Homogeneous:** $r^2 + 4 = 0 \Rightarrow r = \pm 2i$
+
+$y_c = c_1\cos 2x + c_2\sin 2x$
+
+**Particular:** $\sin 2x$ appears in $y_c$
+
+Modified: $y_p = x(A\cos 2x + B\sin 2x)$
+
+After differentiation and substitution:
+$$-4A\sin 2x + 4B\cos 2x = \sin 2x$$
+
+Comparing: $B = 0$, $-4A = 1 \Rightarrow A = -\frac{1}{4}$
+
+**Answer:** $y = c_1\cos 2x + c_2\sin 2x - \frac{x\cos 2x}{4}$
+</details>
+
+**B3.** Solve $y'' + y = \csc x$ (use variation of parameters)
+
+<details>
+<summary>Solution</summary>
+
+$y_1 = \cos x$, $y_2 = \sin x$
+
+$W = 1$
+
+$$u_1' = -\sin x \csc x = -1$$
+$$u_2' = \cos x \csc x = \cot x$$
+
+$$u_1 = -x$$
+$$u_2 = \ln|\sin x|$$
+
+$$y_p = -x\cos x + \sin x \ln|\sin x|$$
+
+**Answer:** $y = c_1\cos x + c_2\sin x - x\cos x + \sin x\ln|\sin x|$
+</details>
+
+### Problem Set C: Boundary Value Problems
+
+**C1.** Solve $y'' + 4y = 0$ with $y(0) = 2$, $y\left(\frac{\pi}{8}\right) = 1$
+
+<details>
+<summary>Solution</summary>
+
+$y = c_1\cos 2x + c_2\sin 2x$
+
+At $x=0$: $c_1 = 2$
+
+At $x=\frac{\pi}{8}$: $2\cos\frac{\pi}{4} + c_2\sin\frac{\pi}{4} = 1$
+
+$$2 \cdot \frac{\sqrt{2}}{2} + c_2 \cdot \frac{\sqrt{2}}{2} = 1$$
+$$\sqrt{2} + \frac{c_2\sqrt{2}}{2} = 1$$
+$$\frac{c_2\sqrt{2}}{2} = 1 - \sqrt{2}$$
+$$c_2 = \frac{2(1-\sqrt{2})}{\sqrt{2}} = \sqrt{2} - 2$$
+
+**Answer:** $y = 2\cos 2x + (\sqrt{2}-2)\sin 2x$
+</details>
+
+**C2.** Solve $y'' - y = x$ with $y(0) = 0$, $y(1) = 1$
+
+<details>
+<summary>Solution</summary>
+
+**Complementary:** $y_c = c_1e^x + c_2e^{-x}$
+
+**Particular:** $y_p = Ax + B$
+
+After solving: $A = -1$, $B = 0$
+
+$y = c_1e^x + c_2e^{-x} - x$
+
+Boundary conditions:
+$$c_1 + c_2 = 0$$
+$$c_1e + c_2e^{-1} - 1 = 1$$
+
+From first: $c_2 = -c_1$
+
+$$c_1e - c_1e^{-1} = 2$$
+$$c_1 = \frac{2}{e - e^{-1}} = \frac{2e}{e^2-1}$$
+
+**Answer:** $y = \frac{2e}{e^2-1}(e^x - e^{-x}) - x$
+</details>
+
+### Problem Set D: Systems
+
+**D1.** Solve:
+$$\frac{dx}{dt} = 5x - y$$
+$$\frac{dy}{dt} = 3x + y$$
+
+<details>
+<summary>Solution</summary>
+
+Differentiate first equation:
+$$\frac{d^2x}{dt^2} = 5\frac{dx}{dt} - \frac{dy}{dt}$$
+
+Substitute second:
+$$\frac{d^2x}{dt^2} = 5\frac{dx}{dt} - (3x+y)$$
+
+From first: $y = 5x - \frac{dx}{dt}$
+
+$$\frac{d^2x}{dt^2} = 5\frac{dx}{dt} - 3x - 5x + \frac{dx}{dt}$$
+$$\frac{d^2x}{dt^2} - 6\frac{dx}{dt} + 8x = 0$$
+
+Characteristic: $(r-2)(r-4) = 0$
+
+$x = c_1e^{2t} + c_2e^{4t}$
+
+$y = 5x - \frac{dx}{dt} = 5(c_1e^{2t} + c_2e^{4t}) - (2c_1e^{2t} + 4c_2e^{4t})$
+
+$y = 3c_1e^{2t} + c_2e^{4t}$
+
+**Answer:** $\begin{cases} x = c_1e^{2t} + c_2e^{4t} \\ y = 3c_1e^{2t} + c_2e^{4t} \end{cases}$
+</details>
+
+**D2.** Solve with initial conditions:
+$$\frac{dx}{dt} = -y, \quad x(0) = 1$$
+$$\frac{dy}{dt} = x, \quad y(0) = 0$$
+
+<details>
+<summary>Solution</summary>
+
+Differentiate first: $\frac{d^2x}{dt^2} = -\frac{dy}{dt} = -x$
+
+$$\frac{d^2x}{dt^2} + x = 0$$
+
+$x = c_1\cos t + c_2\sin t$
+
+$y = -\frac{dx}{dt} = c_1\sin t - c_2\cos t$
+
+Apply initial conditions:
+$$x(0) = c_1 = 1$$
+$$y(0) = -c_2 = 0 \Rightarrow c_2 = 0$$
+
+**Answer:** $\begin{cases} x = \cos t \\ y = \sin t \end{cases}$ (circular motion)
+</details>
+
+---
+
+## Conceptual Understanding Questions
+
+### Question 1: Existence and Uniqueness
+
+**Q:** Why does the IVP $y'' + y = 0$, $y(0)=1$, $y'(0)=0$ have a unique solution, but the BVP $y'' + y = 0$, $y(0)=0$, $y(\pi)=1$ has no solution?
+
+<details>
+<summary>Answer</summary>
+
+**IVP:** The existence and uniqueness theorem guarantees that if the coefficients are continuous (which they are), an IVP has exactly one solution. The initial conditions at a single point fully determine the solution.
+
+**BVP:** The general solution is $y = c_1\cos x + c_2\sin x$
+
+Applying $y(0) = 0$: $c_1 = 0$
+
+So $y = c_2\sin x$
+
+Applying $y(\pi) = 0$: $c_2\sin\pi = 0$ ✓ (satisfied for any $c_2$)
+
+But we need $y(\pi) = 1$, which gives $0 = 1$ ✗ (contradiction)
+
+The natural oscillation of the solution makes $y(\pi) = 0$ regardless of the initial condition at $x=0$. This is a resonance phenomenon.
+</details>
+
+### Question 2: Method Selection
+
+**Q:** You need to solve $y'' + y = f(x)$ for three different forcing functions:
+- (a) $f(x) = x^2$
+- (b) $f(x) = \sec x$  
+- (c) $f(x) = e^x$
+
+Which method would you use for each and why?
+
+<details>
+<summary>Answer</summary>
+
+**(a) $f(x) = x^2$:** **Undetermined Coefficients**
+- Polynomial forcing function
+- Try $y_p = Ax^2 + Bx + C$
+- Fast and straightforward
+
+**(b) $f(x) = \sec x$:** **Variation of Parameters**
+- Undetermined coefficients doesn't work for $\sec x$
+- More calculation but systematic
+- Use $y_1 = \cos x$, $y_2 = \sin x$, $W=1$
+
+**(c) $f(x) = e^x$:** **Undetermined Coefficients**
+- Exponential forcing function
+- Try $y_p = Ae^x$
+- No duplication with $y_c = c_1\cos x + c_2\sin x$
+- Much faster than variation of parameters
+</details>
+
+### Question 3: Physical Interpretation
+
+**Q:** A mass-spring system is described by $y'' + 4y = 8\cos 2t$. This system exhibits resonance (unbounded oscillations). Why?
+
+<details>
+<summary>Answer</summary>
+
+**Homogeneous solution:** $r^2 + 4 = 0 \Rightarrow r = \pm 2i$
+
+Natural frequency: $\omega_n = 2$
+
+$y_c = c_1\cos 2t + c_2\sin 2t$
+
+**Forcing function:** $8\cos 2t$ has frequency $\omega_f = 2$
+
+**Resonance occurs** because the forcing frequency matches the natural frequency ($\omega_f = \omega_n$).
+
+The particular solution will be:
+$$y_p = t(A\cos 2t + B\sin 2t)$$
+
+The factor of $t$ causes unbounded growth - the amplitude increases linearly with time. This is resonance.
+
+**Physical meaning:** You're pushing the swing at exactly its natural frequency, causing the amplitude to grow without bound (in the idealized model without damping).
+</details>
+
+---
+
+## Advanced Topics and Extensions
+
+### Higher-Order Equations
+
+For $n$-th order equations with constant coefficients:
+
+$$a_n\frac{d^ny}{dx^n} + \cdots + a_1\frac{dy}{dx} + a_0y = 0$$
+
+**Characteristic equation:** $a_nr^n + \cdots + a_1r + a_0 = 0$
+
+**Solution has $n$ terms:**
+- Real distinct roots: $c_1e^{r_1x} + c_2e^{r_2x} + \cdots$
+- Repeated root $r$ with multiplicity $m$: $(c_1 + c_2x + \cdots + c_mx^{m-1})e^{rx}$
+- Complex roots come in conjugate pairs
+
+**Example:** $y''' - 6y'' + 11y' - 6y = 0$
+
+Characteristic: $r^3 - 6r^2 + 11r - 6 = 0$
+
+Factor: $(r-1)(r-2)(r-3) = 0$
+
+**Solution:** $y = c_1e^x + c_2e^{2x} + c_3e^{3x}$
+
+### Reduction of Order
+
+If you know one solution $y_1$ to $y'' + P(x)y' + Q(x)y = 0$, you can find a second solution using:
+
+$$y_2 = y_1\int\frac{e^{-\int P(x)dx}}{y_1^2}dx$$
+
+**Example:** Given $y'' - 2xy' + 4y = 0$ has solution $y_1 = e^{x^2}$
+
+Find second solution using reduction of order formula.
+
+### Laplace Transform Method
+
+For equations with discontinuous forcing functions or initial conditions, Laplace transforms are powerful:
+
+$$\mathcal{L}\{y'\} = sY(s) - y(0)$$
+$$\mathcal{L}\{y''\} = s^2Y(s) - sy(0) - y'(0)$$
+
+Transform the DE → Solve algebraically → Inverse transform
+
+---
+
+## Connection to Real-World Applications
+
+### 1. Mechanical Systems
+- **Spring-mass-damper:** $my'' + cy' + ky = F(t)$
+- Underdamped: Complex roots with negative real part
+- Critically damped: Repeated negative real roots
+- Overdamped: Two distinct negative real roots
+
+### 2. Electrical Circuits (RLC)
+- **Series RLC circuit:** $L\frac{d^2q}{dt^2} + R\frac{dq}{dt} + \frac{q}{C} = E(t)$
+- Same mathematical form as mechanical oscillators
+- Natural frequency: $\omega_n = \frac{1}{\sqrt{LC}}$
+
+### 3. Population Dynamics
+- **Predator-prey (Lotka-Volterra):**
+$$\frac{dx}{dt} = ax - bxy$$
+$$\frac{dy}{dt} = -cy + dxy$$
+- System of nonlinear DEs (linearize around equilibrium)
+
+### 4. Heat Transfer
+- **Temperature distribution in rod:** Leads to boundary value problems
+- Steady-state: $\frac{d^2T}{dx^2} = 0$ with BCs at both ends
+
+### 5. Beam Deflection
+- **Euler-Bernoulli beam:** $EI\frac{d^4y}{dx^4} = q(x)$
+- Fourth-order equation with boundary conditions
+- Different BCs for different support types (fixed, pinned, free)
+
+---
+
+## Final Checklist Before Exam
+
+### ✅ Can you...
+
+**Basic Skills:**
+- [ ] Form and solve characteristic equations for all root types?
+- [ ] Recognize when to modify your guess in undetermined coefficients?
+- [ ] Calculate Wronskians correctly?
+- [ ] Apply boundary conditions to solve for constants?
+- [ ] Convert Cauchy-Euler to standard form?
+
+**Problem Recognition:**
+- [ ] Identify equation type in 10 seconds?
+- [ ] Choose the most efficient solution method?
+- [ ] Recognize when a BVP has no solution or infinite solutions?
+
+**Computation:**
+- [ ] Differentiate products and quotients without errors?
+- [ ] Integrate common functions (trig, exponential)?
+- [ ] Solve 2×2 systems of linear equations?
+- [ ] Factor quadratics and cubics?
+
+**Verification:**
+- [ ] Substitute solutions back into original equation?
+- [ ] Check that number of constants matches equation order?
+- [ ] Verify initial/boundary conditions are satisfied?
+
+### 📖 Formula Sheet (Allowed in Exam?)
+
+If formula sheets are permitted, include:
+1. Characteristic equation solutions (3 types)
+2. Variation of parameters formulas
+3. Cauchy-Euler indicial equation
+4. Basic integration formulas
+5. Trig identities
+
+If not permitted, focus memorization on items 1-3 above.
+
+---
+
+## Closing Remarks
+
+### Study Strategy
+
+**Understand, Don't Memorize:**
+- Focus on *why* methods work, not just *how*
+- Understand the connection between root types and solution forms
+- Know when each method applies
+
+**Practice Deliberately:**
+- Start with easier problems to build confidence
+- Progress to more complex mixed problems
+- Time yourself on full-length practice exams
+- Review mistakes immediately
+
+**Common Student Struggles:**
+1. **Sign errors:** Double-check every step
+2. **Forgetting to modify guesses:** Always check for duplication
+3. **Algebra mistakes:** Slow down on routine calculations
+4. **Method selection:** Practice identifying problem types quickly
+
+### Success Principles
+
+1. **Start early:** Don't cram differential equations
+2. **Work daily:** 30 minutes daily > 5 hours once per week  
+3. **Ask questions:** Clarify confusion immediately
+4. **Form study groups:** Teach others to solidify understanding
+5. **Use office hours:** Professors want to help you succeed
+
+### Resources for Further Study
+
+**Recommended Practice Sources:**
+- Myint-U & Debnath: Chapter exercises on linear equations
+- Ross: Comprehensive problem sets with varied difficulty
+- MIT OpenCourseWare: Free lecture notes and exams
+- Paul's Online Math Notes: Clear explanations with examples
+
+**When You're Stuck:**
+1. Re-read the relevant section in this guide
+2. Work through the worked examples step-by-step
+3. Try a similar but simpler problem first
+4. Seek help from instructor/TA/tutor
+
+---
+
+## Good Luck!
+
+Remember: **Differential equations are learned by doing, not by reading.** This guide provides the roadmap, but you must walk the path through consistent practice.
+
+**Key takeaway:** Every problem type has a systematic approach. Master the fundamentals, practice regularly, and you'll succeed.
+
+*"The only way to learn mathematics is to do mathematics."* - Paul Halmos
+
+---
+
+**End of Higher-Order Linear Differential Equations Learning Guide**
+
+*Prepared for GE Differential Equations, Semester 3*  
+*Beginner Level | Exam Preparation Focus*
+
+---
+
+### Document Information
+- **Total Sections:** 7 major topics
+- **Worked Examples:** 21 detailed solutions
+- **Practice Problems:** 21 with full solutions
+- **Quick Reference:** Formula summary and method selection guide
+- **Estimated Study Time:** 40-50 hours for complete mastery
+
+**Good luck with your examination! You've got this! 📚✨**
